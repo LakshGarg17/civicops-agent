@@ -1,18 +1,43 @@
 # CivicOps — AI-Powered Civic Paperwork Assistant
 
-CivicOps turns dense government notices, citations, permits, and tax bills into clear, actionable guidance using Google Gemini.
+CivicOps turns dense government notices, citations, permits, and tax bills into structured data and clear, actionable guidance using Google Gemini.
 
-> **Status:** `Day 1 — Foundation & Architecture`  
-> The basic document upload and Gemini translation flow is fully functional. Agent orchestration modules (`backend/agents/`) are stubbed and will be activated in subsequent milestones.
+> **Status:** `Day 2 — Document Intelligence Agent Active`  
+> Document Agent working: upload PDF/JPG/PNG → structured notice extraction via Gemini multimodal → formatted Notice Summary card + Document Checklist UI. Research Agent, Workflow Agent, Action Agent, and Monitoring Agent are not yet built.
 
 ---
 
-## 🏛️ Features (Day 1)
+## 🏛️ Features (Day 2 Milestone)
 
-- 📄 **Document Upload**: Supports uploading `.txt` and text-based `.pdf` civic notices.
-- ⚡ **Gemini Plain-Language Analysis**: Highlights what the notice means, urgent deadlines, amounts owed, and concrete next steps.
-- 🎨 **Modern Civic UI**: Built with Next.js App Router, Tailwind CSS, drag-and-drop file upload, live progress indicators, and structured response cards.
-- 🛡️ **Tested & Modular**: FastAPI backend with health checks, Pydantic schemas, and unit tests with mocked Gemini services.
+- 📄 **Multimodal Notice Upload**: Upload government notices in **PDF, JPG, JPEG, and PNG** (or `.txt`).
+- 🤖 **Document Intelligence Agent (`DocumentAgent`)**:
+  - Leverages Google Gemini's multimodal vision and document analysis directly.
+  - Extracts key notice metadata into a structured JSON schema (`NoticeStructuredData`):
+    - `notice_type`
+    - `issuing_authority`
+    - `department`
+    - `reference_number`
+    - `citizen_name`
+    - `property_id`
+    - `amount`
+    - `issue`
+    - `deadline`
+    - `required_action`
+    - `mentioned_documents`
+  - **Strict Anti-Hallucination**: Defaults to `"Not found"` for unstated or uncertain fields.
+  - **Defensive Error Handling**: Strips markdown fences, parses JSON safely, and falls back gracefully to default structures.
+- ⚙️ **Service Layer (`DocumentService`)**: Clean file validation, local disk persistence under `backend/uploads/`, and orchestration.
+- 📊 **5-Stage Animated Processing Indicator**:
+  1. Uploading document ✓
+  2. Reading document ✓
+  3. Extracting information ✓
+  4. Identifying notice type ✓
+  5. Building notice summary ✓
+- 📋 **Formatted Notice Summary Card & Document Checklist UI**:
+  - Highlights core issues and required immediate actions.
+  - Distinct styling for unstated (`"Not found"`) fields.
+  - Document Checklist showing required evidence and supporting forms (e.g. dispute forms, prior payment proofs).
+  - 1-Click test samples including synthetic property tax notices, plan check correction notices, and parking citations.
 
 ---
 
@@ -59,6 +84,8 @@ CivicOps turns dense government notices, citations, permits, and tax bills into 
    GEMINI_API_KEY=AIzaSy...your_actual_key_here
    GEMINI_MODEL=gemini-2.0-flash
    PORT=8000
+   UPLOAD_DIR=backend/uploads
+   MAX_FILE_SIZE_MB=10
    ```
 
 4. **Run Backend Server:**
@@ -103,9 +130,9 @@ CivicOps turns dense government notices, citations, permits, and tax bills into 
 
 ### 5. Running Tests
 
-Run backend automated tests with pytest (includes mocked Gemini interactions):
+Run backend automated unit and integration tests with pytest:
 ```bash
-pytest tests/test_upload_endpoint.py -v
+python -m pytest tests/ -v
 ```
 
 ---
@@ -116,41 +143,48 @@ pytest tests/test_upload_endpoint.py -v
 civicops/
 ├── frontend/
 │   ├── app/
-│   │   ├── page.tsx          # Landing page with upload state machine
-│   │   ├── layout.tsx        # App layout and styling
-│   │   └── globals.css       # Tailwind base styles
+│   │   ├── page.tsx               # Main interactive notice workspace
+│   │   ├── layout.tsx             # Root layout and styling
+│   │   └── globals.css            # Tailwind styles
 │   ├── components/
-│   │   ├── UploadCard.tsx    # Upload zone + drag-drop
-│   │   ├── ProgressBar.tsx   # Processing indicator
-│   │   └── ResponseCard.tsx  # Gemini analysis display
+│   │   ├── UploadCard.tsx         # Drag-and-drop multimodal upload zone
+│   │   ├── ProgressBar.tsx        # 5-stage animated processing pipeline
+│   │   ├── NoticeSummaryCard.tsx  # Structured notice extraction card
+│   │   ├── DocumentChecklist.tsx  # Supporting documents checklist
+│   │   └── ResponseCard.tsx       # Plain-language overview display
 │   ├── package.json
 │   ├── tsconfig.json
-│   ├── tailwind.config.ts
-│   └── .env.local.example
+│   └── tailwind.config.ts
 │
 ├── backend/
-│   ├── agents/                # Stubs for Day 2+ multi-agent orchestration
-│   │   ├── document_agent.py
-│   │   ├── research_agent.py
-│   │   ├── workflow_agent.py
-│   │   ├── action_agent.py
-│   │   └── monitoring_agent.py
+│   ├── agents/
+│   │   ├── document_agent.py      # Multimodal Document Intelligence Agent
+│   │   ├── research_agent.py      # Stub (Day 3 milestone)
+│   │   ├── workflow_agent.py      # Stub (Day 4 milestone)
+│   │   ├── action_agent.py        # Stub (Day 5 milestone)
+│   │   └── monitoring_agent.py    # Stub (Day 6 milestone)
 │   ├── services/
-│   │   └── gemini_service.py # Gemini 2.0 Flash client wrapper
+│   │   ├── document_service.py    # Ingestion, validation & orchestration
+│   │   └── gemini_service.py      # Gemini client wrapper
 │   ├── models/
-│   │   └── schemas.py        # Pydantic models
-│   ├── main.py               # FastAPI app & endpoints (/upload, /health)
-│   └── config.py             # Settings loader and ADK configuration
+│   │   ├── notice.py              # NoticeStructuredData Pydantic schema
+│   │   └── schemas.py             # UploadResponse & ErrorResponse schemas
+│   ├── uploads/                   # Local working directory for uploaded notices
+│   ├── main.py                    # FastAPI app & endpoints (/upload, /health)
+│   └── config.py                  # Settings & environment configuration
 │
 ├── data/
-│   └── sample_notices/       # Sample realistic civic notices (.txt)
+│   └── sample_notices/            # Realistic sample notices (.pdf, .txt)
+│       ├── property_tax_notice.pdf
+│       ├── building_permit_correction_notice.txt
+│       └── property_tax_delinquency_notice.txt
 │
 ├── tests/
-│   └── test_upload_endpoint.py
+│   ├── test_document_agent.py     # DocumentAgent unit tests & parsing tests
+│   └── test_upload_endpoint.py    # Multimodal endpoint validation tests
 ├── docs/
 │   └── architecture.md
 ├── .env.example
-├── .gitignore
 ├── requirements.txt
 └── README.md
 ```
