@@ -22,6 +22,11 @@ GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
 PORT = int(os.getenv("PORT", "8000"))
 HOST = os.getenv("HOST", "0.0.0.0")
 
+# Storage Configuration (Local Disk Storage)
+UPLOAD_DIR = Path(os.getenv("UPLOAD_DIR", str(Path(__file__).resolve().parent / "uploads")))
+UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
+MAX_FILE_SIZE_MB = int(os.getenv("MAX_FILE_SIZE_MB", "10"))
+
 # Google ADK Configuration & Sanity Check
 def initialize_adk() -> dict:
     """
