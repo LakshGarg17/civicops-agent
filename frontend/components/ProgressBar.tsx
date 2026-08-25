@@ -1,70 +1,137 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { Loader2, FileText, Cpu, Sparkles } from "lucide-react";
+import { Loader2, CheckCircle2, FileText, Sparkles, Circle } from "lucide-react";
 
 interface ProgressBarProps {
   filename: string;
 }
 
+const STAGES = [
+  { id: 1, label: "Uploading document", delay: 0 },
+  { id: 2, label: "Reading document", delay: 800 },
+  { id: 3, label: "Extracting information", delay: 1800 },
+  { id: 4, label: "Identifying notice type", delay: 2800 },
+  { id: 5, label: "Building notice summary", delay: 3800 },
+];
+
 export const ProgressBar: React.FC<ProgressBarProps> = ({ filename }) => {
-  const [progress, setProgress] = useState(25);
-  const [stage, setStage] = useState("Ingesting document...");
+  const [activeStep, setActiveStep] = useState(1);
+  const [progress, setProgress] = useState(15);
 
   useEffect(() => {
-    const timer1 = setTimeout(() => {
-      setProgress(55);
-      setStage("Extracting text and parsing civic references...");
-    }, 800);
+    const timers: NodeJS.Timeout[] = [];
 
-    const timer2 = setTimeout(() => {
-      setProgress(85);
-      setStage("Consulting Gemini 2.0 to translate requirements...");
-    }, 2000);
+    timers.push(
+      setTimeout(() => {
+        setActiveStep(2);
+        setProgress(35);
+      }, 700)
+    );
+
+    timers.push(
+      setTimeout(() => {
+        setActiveStep(3);
+        setProgress(60);
+      }, 1800)
+    );
+
+    timers.push(
+      setTimeout(() => {
+        setActiveStep(4);
+        setProgress(82);
+      }, 2800)
+    );
+
+    timers.push(
+      setTimeout(() => {
+        setActiveStep(5);
+        setProgress(95);
+      }, 3800)
+    );
 
     return () => {
-      clearTimeout(timer1);
-      clearTimeout(timer2);
+      timers.forEach((t) => clearTimeout(t));
     };
   }, []);
 
   return (
-    <div className="w-full bg-white rounded-2xl border border-slate-200/80 p-8 sm:p-10 shadow-sm">
-      <div className="flex flex-col items-center text-center space-y-6">
-        <div className="relative">
-          <div className="h-16 w-16 rounded-2xl bg-civic-50 text-civic-600 flex items-center justify-center">
-            <Loader2 className="h-8 w-8 animate-spin text-civic-600" />
-          </div>
-          <div className="absolute -bottom-1 -right-1 h-6 w-6 rounded-full bg-emerald-500 text-white flex items-center justify-center shadow">
-            <Sparkles className="h-3.5 w-3.5" />
-          </div>
+    <div className="w-full bg-white rounded-2xl border border-slate-200 shadow-sm p-6 sm:p-10 space-y-8 animate-in fade-in duration-200">
+      {/* Header */}
+      <div className="text-center space-y-2">
+        <div className="inline-flex items-center justify-center h-14 w-14 rounded-2xl bg-civic-50 text-civic-600 mb-2">
+          <Loader2 className="h-7 w-7 animate-spin text-civic-600" />
         </div>
+        <h3 className="text-lg font-bold text-slate-900">
+          Document Intelligence Agent Processing
+        </h3>
+        <p className="text-xs text-slate-500 flex items-center justify-center gap-1.5">
+          <FileText className="h-3.5 w-3.5 text-slate-400" />
+          <span className="font-medium text-slate-700 truncate max-w-xs">{filename}</span>
+        </p>
+      </div>
 
-        <div className="space-y-1.5 max-w-md">
-          <h3 className="text-lg font-semibold text-slate-900">
-            Processing your document...
-          </h3>
-          <p className="text-sm font-medium text-civic-700">
-            {stage}
-          </p>
-          <div className="flex items-center justify-center gap-1.5 text-xs text-slate-400 pt-1">
-            <FileText className="h-3.5 w-3.5" />
-            <span className="truncate max-w-[240px]">{filename}</span>
-          </div>
-        </div>
-
-        {/* Animated Progress Bar */}
-        <div className="w-full max-w-md bg-slate-100 rounded-full h-2.5 overflow-hidden">
+      {/* Progress Bar */}
+      <div className="w-full max-w-lg mx-auto space-y-1.5">
+        <div className="w-full bg-slate-100 rounded-full h-2.5 overflow-hidden">
           <div
-            className="bg-gradient-to-r from-civic-500 to-civic-600 h-2.5 rounded-full transition-all duration-700 ease-out"
+            className="bg-gradient-to-r from-civic-500 to-civic-700 h-2.5 rounded-full transition-all duration-700 ease-out"
             style={{ width: `${progress}%` }}
           />
         </div>
+        <div className="flex justify-between text-[11px] text-slate-400 font-medium px-1">
+          <span>Multimodal Ingestion</span>
+          <span>{progress}%</span>
+        </div>
+      </div>
 
-        <div className="grid grid-cols-3 gap-2 w-full max-w-md pt-2 text-xs text-slate-400">
-          <span className={progress >= 25 ? "text-civic-700 font-medium" : ""}>1. Ingest</span>
-          <span className={progress >= 55 ? "text-civic-700 font-medium" : ""}>2. Parse</span>
-          <span className={progress >= 85 ? "text-civic-700 font-medium" : ""}>3. Gemini AI</span>
+      {/* 5-Stage Checklist Card */}
+      <div className="max-w-md mx-auto bg-slate-50 border border-slate-200/80 rounded-xl p-4 sm:p-5 space-y-3">
+        <div className="text-xs font-bold uppercase tracking-wider text-slate-500 mb-2 flex items-center justify-between">
+          <span>Processing Pipeline</span>
+          <span className="text-[11px] font-semibold text-civic-700">Stage {activeStep} of 5</span>
+        </div>
+
+        <div className="space-y-2.5">
+          {STAGES.map((st) => {
+            const isDone = activeStep > st.id;
+            const isCurrent = activeStep === st.id;
+
+            return (
+              <div
+                key={st.id}
+                className={`flex items-center justify-between p-2.5 rounded-lg text-xs transition-all ${
+                  isCurrent
+                    ? "bg-white border border-civic-300 shadow-2xs font-semibold text-civic-900"
+                    : isDone
+                    ? "bg-slate-100/70 text-slate-700"
+                    : "text-slate-400"
+                }`}
+              >
+                <div className="flex items-center gap-2.5">
+                  {isDone ? (
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                  ) : isCurrent ? (
+                    <Loader2 className="w-4 h-4 text-civic-600 animate-spin flex-shrink-0" />
+                  ) : (
+                    <Circle className="w-4 h-4 text-slate-300 flex-shrink-0" />
+                  )}
+                  <span>{st.label}</span>
+                </div>
+
+                {isDone && (
+                  <span className="text-[10px] font-semibold text-emerald-700 bg-emerald-50 px-1.5 py-0.5 rounded">
+                    ✓
+                  </span>
+                )}
+                {isCurrent && (
+                  <span className="text-[10px] font-semibold text-civic-700 bg-civic-100 px-1.5 py-0.5 rounded animate-pulse">
+                    In progress
+                  </span>
+                )}
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>

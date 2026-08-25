@@ -1,12 +1,14 @@
 "use client";
 
 import React, { useState, useRef } from "react";
-import { UploadCloud, FileText, AlertCircle, Sparkles } from "lucide-react";
+import { UploadCloud, FileText, AlertCircle, Image as ImageIcon, Sparkles } from "lucide-react";
 
 interface UploadCardProps {
   onFileSelected: (file: File) => void;
   disabled?: boolean;
 }
+
+const ALLOWED_EXTENSIONS = [".pdf", ".jpg", ".jpeg", ".png", ".txt"];
 
 export const UploadCard: React.FC<UploadCardProps> = ({ onFileSelected, disabled = false }) => {
   const [isDragging, setIsDragging] = useState(false);
@@ -25,11 +27,10 @@ export const UploadCard: React.FC<UploadCardProps> = ({ onFileSelected, disabled
 
   const validateAndSelectFile = (file: File) => {
     setErrorMsg(null);
-    const validExtensions = [".txt", ".pdf"];
-    const hasValidExt = validExtensions.some((ext) => file.name.toLowerCase().endsWith(ext));
+    const hasValidExt = ALLOWED_EXTENSIONS.some((ext) => file.name.toLowerCase().endsWith(ext));
 
     if (!hasValidExt) {
-      setErrorMsg("Please upload a .txt or .pdf government notice.");
+      setErrorMsg("Please upload a supported document (PDF, JPG, JPEG, PNG, or TXT).");
       return;
     }
 
@@ -69,32 +70,32 @@ export const UploadCard: React.FC<UploadCardProps> = ({ onFileSelected, disabled
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         onClick={() => !disabled && fileInputRef.current?.click()}
-        className={`relative group cursor-pointer rounded-2xl border-2 border-dashed p-8 sm:p-12 text-center transition-all duration-200 bg-white/80 shadow-sm ${
+        className={`relative group cursor-pointer rounded-2xl border-2 border-dashed p-8 sm:p-12 text-center transition-all duration-200 bg-white/90 shadow-sm ${
           isDragging
-            ? "border-civic-500 bg-civic-50/50 scale-[1.01]"
+            ? "border-civic-500 bg-civic-50/60 scale-[1.01]"
             : "border-slate-300 hover:border-civic-400 hover:bg-slate-50/50"
         } ${disabled ? "opacity-50 cursor-not-allowed" : ""}`}
       >
         <input
           ref={fileInputRef}
           type="file"
-          accept=".txt,.pdf"
+          accept=".pdf,.jpg,.jpeg,.png,.txt"
           className="hidden"
           onChange={handleFileInputChange}
           disabled={disabled}
         />
 
         <div className="flex flex-col items-center justify-center space-y-4">
-          <div className="h-16 w-16 rounded-2xl bg-civic-50 text-civic-600 flex items-center justify-center group-hover:scale-110 group-hover:bg-civic-100 transition-transform">
+          <div className="h-16 w-16 rounded-2xl bg-civic-50 text-civic-600 flex items-center justify-center group-hover:scale-110 group-hover:bg-civic-100 transition-transform shadow-2xs">
             <UploadCloud className="h-8 w-8" />
           </div>
 
           <div className="space-y-1.5">
-            <h3 className="text-lg font-semibold text-slate-900">
-              Upload Notice or Paperwork
+            <h3 className="text-lg font-bold text-slate-900">
+              Upload Notice, Citation, or Paperwork
             </h3>
-            <p className="text-sm text-slate-500 max-w-sm mx-auto">
-              Drag and drop your document here, or click to browse files from your device.
+            <p className="text-sm text-slate-500 max-w-md mx-auto">
+              Drag and drop your government notice (PDF or Image), or click to browse files from your device.
             </p>
           </div>
 
@@ -105,20 +106,28 @@ export const UploadCard: React.FC<UploadCardProps> = ({ onFileSelected, disabled
               className="inline-flex items-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-civic-600 hover:bg-civic-700 active:scale-95 shadow-sm shadow-civic-200 transition-all"
             >
               <FileText className="w-4 h-4" />
-              Upload Notice
+              Select File
             </button>
           </div>
 
-          <div className="flex items-center gap-4 text-xs text-slate-400 pt-2">
-            <span>Supports .TXT and .PDF</span>
-            <span>•</span>
-            <span>Max 10 MB</span>
+          {/* Supported Format Badges */}
+          <div className="flex flex-wrap items-center justify-center gap-2 pt-3 text-xs">
+            <span className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 font-semibold border border-slate-200">
+              PDF
+            </span>
+            <span className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 font-semibold border border-slate-200">
+              JPG / JPEG
+            </span>
+            <span className="px-2.5 py-1 rounded-md bg-slate-100 text-slate-700 font-semibold border border-slate-200">
+              PNG
+            </span>
+            <span className="text-slate-400 font-medium">• Max 10 MB</span>
           </div>
         </div>
       </div>
 
       {errorMsg && (
-        <div className="mt-4 flex items-center gap-2 p-3.5 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl">
+        <div className="mt-4 flex items-center gap-2 p-3.5 text-sm text-red-700 bg-red-50 border border-red-200 rounded-xl animate-in fade-in">
           <AlertCircle className="h-5 w-5 flex-shrink-0 text-red-500" />
           <span>{errorMsg}</span>
         </div>
