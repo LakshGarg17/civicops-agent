@@ -1,53 +1,61 @@
 # CivicOps — AI-Powered Civic Paperwork Assistant
 
-CivicOps turns dense government notices, citations, permits, and tax bills into structured data, grounded official procedures, and actionable personalized step-by-step resolution plans using Google Gemini.
+CivicOps turns dense government notices, citations, permits, and tax bills into structured data, grounded official procedures, and actionable personalized step-by-step resolution plans with autonomous preparation and server-enforced human authorization using Google Gemini.
 
-> **Status:** `Day 3 — Research Agent + Workflow Agent Active`  
-> Research Agent + Workflow Agent working — Research Agent has web/gov-source lookup tools rather than pure model recall for procedures. Workflow Agent diffs required vs. available documents and schedules personalized action tasks. Action Agent and Monitoring Agent are not yet built (future milestones).
+> **Status:** `Day 4 — Action Agent + Human Approval Gate Active`  
+> Action Agent + human approval flow working — applications are prepared and reviewed by the user before any submission; all submissions go through a clearly labeled sandbox/demo gateway, not a real government system. Case persistence uses file-backed storage (`data/cases.json`); Firestore/cloud migration planned for Day 5. Monitoring Agent is a future milestone.
 
 ---
 
-## 🏛️ Autonomous Agent Pipeline (Day 3 Architecture)
+## 🏛️ Autonomous Agent Pipeline (Day 4 Architecture)
 
 ```
 Government Notice (PDF/PNG/JPG)
          │
          ▼
-[ Document Agent ]  ──▶ Extracts structured notice JSON (type, authority, APN/citation, deadline, proofs)
+[ Document Agent ]   ──▶ Extracts structured notice JSON (type, authority, APN/citation, deadline, proofs)
          │
          ▼
-[ Research Agent ]  ──▶ Grounded search on .gov portals / civic codes to identify official procedure, rules & fees
+[ Research Agent ]   ──▶ Grounded search on .gov portals / civic codes to identify official procedure & rules
          │
          ▼
 [ Citizen Inventory ] ──▶ Citizen indicates which required documents they have on hand
          │
          ▼
-[ Workflow Agent ]  ──▶ Diffs required vs available docs, schedules upload tasks & sequences personalized action plan
+[ Workflow Agent ]   ──▶ Diffs required vs available docs, schedules upload tasks & sequences action plan
          │
          ▼
-[ Action Plan UI ]  ──▶ Case tracking, dynamic progress %, missing document alerts & interactive task execution
+[ Action Agent ]     ──▶ Prepares formal dispute/petition package with verified attached documents
+         │
+         ▼
+[ Human Approval Gate ] ──▶ Citizen reviews & explicitly authorizes consequential submission
+         │
+         ▼
+[ Submission Agent ] ──▶ Executes filing against simulated CivicOps Demo Gateway (Sandbox receipt issued)
+         │
+         ▼
+[ Monitoring Agent ] ──▶ (Day 5 Milestone: Status polling, webhooks & escalation)
 ```
 
 ---
 
-## ✨ Features (Day 3 Milestone)
+## ✨ Features (Day 4 Milestone)
 
-- 📄 **Multimodal Notice Upload & Extraction (`DocumentAgent`)**:
-  - Leverages Google Gemini multimodal capabilities.
-  - Extracts key notice metadata into `NoticeStructuredData` schema with strict anti-hallucination (`"Not found"` fallback).
-- 🔍 **Grounded Civic Research Agent (`ResearchAgent`)**:
-  - Grounded lookup with government domain filtering (`.gov`, municipal portals, county assessor portals).
-  - Determines formal procedure name, administering authority, submission channel, required documents, sequential steps, deadline rules, and fees.
-  - Output conforms to `ProcedureResearchData` strict schema without guessing unverified information.
-- ⚡ **Personalized Workflow Agent (`WorkflowAgent`)**:
-  - Diffs required procedure documents against user-provided documents.
-  - Automatically schedules `"Upload {missing document}"` tasks for items the citizen lacks.
-  - Generates a unique tracking case identifier (`CIV-XXXX`), priority assessment, and ordered task sequence.
-- 🌐 **Interactive Frontend UI**:
-  - **Document Checklist**: Citizens check off documents they have on hand or add additional evidence.
-  - **Live Agent Activity Terminal (`AgentActivity`)**: Real-time staged reveal of multi-agent collaboration with authoritative sources citations.
-  - **Personalized Action Plan (`ActionPlanCard`)**: Progress bar, priority badges, deadline countdowns, missing document alerts, and interactive task completion toggles.
-  - **1-Click Test Samples**: Property tax delinquency, building permit correction resubmission, and parking citations.
+- 📄 **Multimodal Notice Ingestion (`DocumentAgent`)**: Multimodal extraction into structured schemas with `"Not found"` anti-hallucination defaults.
+- 🔍 **Grounded Civic Research (`ResearchAgent`)**: Official procedure lookup biased toward `.gov` domains with citation tracking.
+- ⚡ **Personalized Action Plan (`WorkflowAgent`)**: Diffs available citizen documents against statutory requirements and builds sequenced tasks.
+- ✍️ **Application Generator & Action Agent (`ActionAgent`)**:
+  - Automatically drafts formal administrative petitions, appeal letters, and correction requests.
+  - **Strict Anti-Fabrication**: Only lists supporting documents that the citizen actually provided; explicitly flags unattached items.
+- 🔒 **Server-Enforced Human Approval Gate (`ApprovalRecord`)**:
+  - Distinguishes between safe preparatory actions and consequential execution.
+  - Submissions are rejected with **HTTP 403 Forbidden** unless an explicit human authorization record exists for that case.
+- 🧪 **CivicOps Demo Gateway (Sandbox)**:
+  - Transparent simulation environment that issues realistic submission receipts (e.g. `DEMO-SUB-892147`) without contacting live government databases.
+- 📊 **Unified Multi-Agent Activity Timeline (`CaseActivityTimeline`)**:
+  - Real-time audit trail across Document, Research, Workflow, Action, Human Approval, Submission, and Monitoring stages.
+- 💾 **Persistent Case Repository (`CivicCase`)**:
+  - Preserves notice, research, workflow, application, approval tokens, and submission receipts in file-backed storage (`data/cases.json`).
 
 ---
 
@@ -100,7 +108,6 @@ Government Notice (PDF/PNG/JPG)
 
 4. **Run Backend Server:**
    ```bash
-   # From root directory:
    uvicorn backend.main:app --reload --port 8000
    ```
    The backend API will be live at `http://localhost:8000`.  
@@ -110,13 +117,13 @@ Government Notice (PDF/PNG/JPG)
 
 ### 4. Frontend Setup
 
-1. **Open a new terminal, navigate to `/frontend`:**
+1. **Navigate to `/frontend`:**
    ```bash
    cd frontend
    npm install
    ```
 
-2. **Run the Next.js Development Server:**
+2. **Run Next.js Development Server:**
    ```bash
    npm run dev
    ```
@@ -130,7 +137,7 @@ Run all unit and integration test suites:
 ```bash
 pytest
 ```
-*Includes 21 automated test cases covering Document Agent extraction, Research Agent grounded lookup, anti-hallucination unverified field preservation, Workflow Agent document diffing, upload task generation, and API endpoints.*
+*Includes 26 automated test cases covering Document Agent extraction, Research Agent grounded lookup, Workflow Agent diffing, Action Agent application preparation, Anti-Fabrication document verification, and Server-Enforced Human Approval Gate submission.*
 
 ---
 
@@ -139,6 +146,6 @@ pytest
 - [x] **Day 1: Project Skeleton & Gemini Multimodal Wiring**
 - [x] **Day 2: Document Intelligence Agent & Structured Notice Extraction**
 - [x] **Day 3: Research Agent + Workflow Agent (Grounded Procedures & Personalized Action Plans)**
-- [ ] **Day 4: Action Agent (Automated Form Filling & Dispute Letter Generation)**
-- [ ] **Day 5: Monitoring Agent (Submission Tracking & Status Webhooks)**
+- [x] **Day 4: Action Agent + Human Approval Gate + Sandbox Execution**
+- [ ] **Day 5: Monitoring Agent (Submission Tracking & Cloud/Firestore Persistence)**
 - [ ] **Day 6: Polish, E2E Integration & Demo Packaging**
