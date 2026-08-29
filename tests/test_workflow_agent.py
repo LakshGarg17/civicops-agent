@@ -192,7 +192,7 @@ def test_api_workflow_endpoint_and_case_retrieval():
     assert get_res.status_code == 200
     retrieved_case = get_res.json()
     assert retrieved_case["case_id"] == case_id
-    assert retrieved_case["goal"] == w_data["workflow"]["goal"]
+    assert retrieved_case["workflow"]["goal"] == w_data["workflow"]["goal"]
 
 def test_api_get_nonexistent_case_returns_404():
     """Test GET /cases/nonexistent returns 404."""
