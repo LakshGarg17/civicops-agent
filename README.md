@@ -1,43 +1,53 @@
 # CivicOps — AI-Powered Civic Paperwork Assistant
 
-CivicOps turns dense government notices, citations, permits, and tax bills into structured data and clear, actionable guidance using Google Gemini.
+CivicOps turns dense government notices, citations, permits, and tax bills into structured data, grounded official procedures, and actionable personalized step-by-step resolution plans using Google Gemini.
 
-> **Status:** `Day 2 — Document Intelligence Agent Active`  
-> Document Agent working: upload PDF/JPG/PNG → structured notice extraction via Gemini multimodal → formatted Notice Summary card + Document Checklist UI. Research Agent, Workflow Agent, Action Agent, and Monitoring Agent are not yet built.
+> **Status:** `Day 3 — Research Agent + Workflow Agent Active`  
+> Research Agent + Workflow Agent working — Research Agent has web/gov-source lookup tools rather than pure model recall for procedures. Workflow Agent diffs required vs. available documents and schedules personalized action tasks. Action Agent and Monitoring Agent are not yet built (future milestones).
 
 ---
 
-## 🏛️ Features (Day 2 Milestone)
+## 🏛️ Autonomous Agent Pipeline (Day 3 Architecture)
 
-- 📄 **Multimodal Notice Upload**: Upload government notices in **PDF, JPG, JPEG, and PNG** (or `.txt`).
-- 🤖 **Document Intelligence Agent (`DocumentAgent`)**:
-  - Leverages Google Gemini's multimodal vision and document analysis directly.
-  - Extracts key notice metadata into a structured JSON schema (`NoticeStructuredData`):
-    - `notice_type`
-    - `issuing_authority`
-    - `department`
-    - `reference_number`
-    - `citizen_name`
-    - `property_id`
-    - `amount`
-    - `issue`
-    - `deadline`
-    - `required_action`
-    - `mentioned_documents`
-  - **Strict Anti-Hallucination**: Defaults to `"Not found"` for unstated or uncertain fields.
-  - **Defensive Error Handling**: Strips markdown fences, parses JSON safely, and falls back gracefully to default structures.
-- ⚙️ **Service Layer (`DocumentService`)**: Clean file validation, local disk persistence under `backend/uploads/`, and orchestration.
-- 📊 **5-Stage Animated Processing Indicator**:
-  1. Uploading document ✓
-  2. Reading document ✓
-  3. Extracting information ✓
-  4. Identifying notice type ✓
-  5. Building notice summary ✓
-- 📋 **Formatted Notice Summary Card & Document Checklist UI**:
-  - Highlights core issues and required immediate actions.
-  - Distinct styling for unstated (`"Not found"`) fields.
-  - Document Checklist showing required evidence and supporting forms (e.g. dispute forms, prior payment proofs).
-  - 1-Click test samples including synthetic property tax notices, plan check correction notices, and parking citations.
+```
+Government Notice (PDF/PNG/JPG)
+         │
+         ▼
+[ Document Agent ]  ──▶ Extracts structured notice JSON (type, authority, APN/citation, deadline, proofs)
+         │
+         ▼
+[ Research Agent ]  ──▶ Grounded search on .gov portals / civic codes to identify official procedure, rules & fees
+         │
+         ▼
+[ Citizen Inventory ] ──▶ Citizen indicates which required documents they have on hand
+         │
+         ▼
+[ Workflow Agent ]  ──▶ Diffs required vs available docs, schedules upload tasks & sequences personalized action plan
+         │
+         ▼
+[ Action Plan UI ]  ──▶ Case tracking, dynamic progress %, missing document alerts & interactive task execution
+```
+
+---
+
+## ✨ Features (Day 3 Milestone)
+
+- 📄 **Multimodal Notice Upload & Extraction (`DocumentAgent`)**:
+  - Leverages Google Gemini multimodal capabilities.
+  - Extracts key notice metadata into `NoticeStructuredData` schema with strict anti-hallucination (`"Not found"` fallback).
+- 🔍 **Grounded Civic Research Agent (`ResearchAgent`)**:
+  - Grounded lookup with government domain filtering (`.gov`, municipal portals, county assessor portals).
+  - Determines formal procedure name, administering authority, submission channel, required documents, sequential steps, deadline rules, and fees.
+  - Output conforms to `ProcedureResearchData` strict schema without guessing unverified information.
+- ⚡ **Personalized Workflow Agent (`WorkflowAgent`)**:
+  - Diffs required procedure documents against user-provided documents.
+  - Automatically schedules `"Upload {missing document}"` tasks for items the citizen lacks.
+  - Generates a unique tracking case identifier (`CIV-XXXX`), priority assessment, and ordered task sequence.
+- 🌐 **Interactive Frontend UI**:
+  - **Document Checklist**: Citizens check off documents they have on hand or add additional evidence.
+  - **Live Agent Activity Terminal (`AgentActivity`)**: Real-time staged reveal of multi-agent collaboration with authoritative sources citations.
+  - **Personalized Action Plan (`ActionPlanCard`)**: Progress bar, priority badges, deadline countdowns, missing document alerts, and interactive task completion toggles.
+  - **1-Click Test Samples**: Property tax delinquency, building permit correction resubmission, and parking citations.
 
 ---
 
@@ -100,91 +110,35 @@ CivicOps turns dense government notices, citations, permits, and tax bills into 
 
 ### 4. Frontend Setup
 
-1. **Navigate to the frontend directory:**
+1. **Open a new terminal, navigate to `/frontend`:**
    ```bash
    cd frontend
-   ```
-
-2. **Install Node dependencies:**
-   ```bash
    npm install
    ```
 
-3. **Configure Frontend Environment:**
-   Copy `.env.local.example` to `.env.local`:
-   ```bash
-   cp .env.local.example .env.local
-   ```
-   Ensure `NEXT_PUBLIC_API_URL` points to `http://localhost:8000`:
-   ```env
-   NEXT_PUBLIC_API_URL=http://localhost:8000
-   ```
-
-4. **Start Next.js Development Server:**
+2. **Run the Next.js Development Server:**
    ```bash
    npm run dev
    ```
-   Open [http://localhost:3000](http://localhost:3000) in your browser.
+   Open `http://localhost:3000` in your browser.
 
 ---
 
-### 5. Running Tests
+## 🧪 Testing
 
-Run backend automated unit and integration tests with pytest:
+Run all unit and integration test suites:
 ```bash
-python -m pytest tests/ -v
+pytest
 ```
+*Includes 21 automated test cases covering Document Agent extraction, Research Agent grounded lookup, anti-hallucination unverified field preservation, Workflow Agent document diffing, upload task generation, and API endpoints.*
 
 ---
 
-## 📂 Project Structure
+## 📅 Roadmap & Milestones
 
-```
-civicops/
-├── frontend/
-│   ├── app/
-│   │   ├── page.tsx               # Main interactive notice workspace
-│   │   ├── layout.tsx             # Root layout and styling
-│   │   └── globals.css            # Tailwind styles
-│   ├── components/
-│   │   ├── UploadCard.tsx         # Drag-and-drop multimodal upload zone
-│   │   ├── ProgressBar.tsx        # 5-stage animated processing pipeline
-│   │   ├── NoticeSummaryCard.tsx  # Structured notice extraction card
-│   │   ├── DocumentChecklist.tsx  # Supporting documents checklist
-│   │   └── ResponseCard.tsx       # Plain-language overview display
-│   ├── package.json
-│   ├── tsconfig.json
-│   └── tailwind.config.ts
-│
-├── backend/
-│   ├── agents/
-│   │   ├── document_agent.py      # Multimodal Document Intelligence Agent
-│   │   ├── research_agent.py      # Stub (Day 3 milestone)
-│   │   ├── workflow_agent.py      # Stub (Day 4 milestone)
-│   │   ├── action_agent.py        # Stub (Day 5 milestone)
-│   │   └── monitoring_agent.py    # Stub (Day 6 milestone)
-│   ├── services/
-│   │   ├── document_service.py    # Ingestion, validation & orchestration
-│   │   └── gemini_service.py      # Gemini client wrapper
-│   ├── models/
-│   │   ├── notice.py              # NoticeStructuredData Pydantic schema
-│   │   └── schemas.py             # UploadResponse & ErrorResponse schemas
-│   ├── uploads/                   # Local working directory for uploaded notices
-│   ├── main.py                    # FastAPI app & endpoints (/upload, /health)
-│   └── config.py                  # Settings & environment configuration
-│
-├── data/
-│   └── sample_notices/            # Realistic sample notices (.pdf, .txt)
-│       ├── property_tax_notice.pdf
-│       ├── building_permit_correction_notice.txt
-│       └── property_tax_delinquency_notice.txt
-│
-├── tests/
-│   ├── test_document_agent.py     # DocumentAgent unit tests & parsing tests
-│   └── test_upload_endpoint.py    # Multimodal endpoint validation tests
-├── docs/
-│   └── architecture.md
-├── .env.example
-├── requirements.txt
-└── README.md
-```
+- [x] **Day 1: Project Skeleton & Gemini Multimodal Wiring**
+- [x] **Day 2: Document Intelligence Agent & Structured Notice Extraction**
+- [x] **Day 3: Research Agent + Workflow Agent (Grounded Procedures & Personalized Action Plans)**
+- [ ] **Day 4: Action Agent (Automated Form Filling & Dispute Letter Generation)**
+- [ ] **Day 5: Monitoring Agent (Submission Tracking & Status Webhooks)**
+- [ ] **Day 6: Polish, E2E Integration & Demo Packaging**
