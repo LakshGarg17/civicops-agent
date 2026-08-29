@@ -16,7 +16,9 @@ import {
   ChevronDown,
   ChevronUp,
   Layers,
-  Award
+  Award,
+  Send,
+  Wand2
 } from "lucide-react";
 
 export interface WorkflowTask {
@@ -54,12 +56,18 @@ interface ActionPlanCardProps {
   workflow: WorkflowCase;
   researchData?: ProcedureResearchData;
   onUpdateTaskStatus?: (taskId: string, newStatus: string) => void;
+  onPrepareApplication?: () => void;
+  isPreparingApplication?: boolean;
+  hasApplication?: boolean;
 }
 
 export const ActionPlanCard: React.FC<ActionPlanCardProps> = ({
   workflow,
   researchData,
-  onUpdateTaskStatus
+  onUpdateTaskStatus,
+  onPrepareApplication,
+  isPreparingApplication = false,
+  hasApplication = false
 }) => {
   const [tasks, setTasks] = useState<WorkflowTask[]>(workflow.tasks || []);
   const [showResearchDetails, setShowResearchDetails] = useState(false);
@@ -241,6 +249,33 @@ export const ActionPlanCard: React.FC<ActionPlanCardProps> = ({
           })}
         </div>
       </div>
+
+      {/* Prepare Application CTA */}
+      {onPrepareApplication && (
+        <div className="p-5 rounded-2xl bg-gradient-to-r from-slate-900 to-civic-950 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-4 shadow-md">
+          <div className="space-y-1">
+            <div className="flex items-center gap-2">
+              <span className="text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded bg-civic-500/30 text-civic-200 border border-civic-400/40">
+                Action Agent
+              </span>
+              <h4 className="text-sm font-bold text-white">Next Step: Prepare Formal Dispute Application</h4>
+            </div>
+            <p className="text-xs text-slate-300">
+              The Action Agent will assemble your notice, research guidelines, and attached documents into a reviewable petition.
+            </p>
+          </div>
+
+          <button
+            type="button"
+            onClick={onPrepareApplication}
+            disabled={isPreparingApplication}
+            className="px-5 py-3 rounded-xl bg-gradient-to-r from-civic-500 to-civic-600 hover:from-civic-600 hover:to-civic-700 text-white text-xs font-extrabold shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 flex-shrink-0 disabled:opacity-50"
+          >
+            <Wand2 className="w-4 h-4" />
+            <span>{isPreparingApplication ? "Action Agent Preparing..." : hasApplication ? "Review / Re-generate Application" : "Prepare Application Draft"}</span>
+          </button>
+        </div>
+      )}
 
       {/* Grounded Research Details Accordion */}
       {researchData && (
