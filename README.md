@@ -154,16 +154,28 @@ python -m pytest
 
 ## Deployment
 
-Deploy backend to Google Cloud Run:
+CivicOps is configured for a split deployment:
+- **Backend (FastAPI)**: Deployed to **Google Cloud Run** for containerized execution, direct Firestore/GCS access, and Cloud Tasks background monitoring callbacks.
+- **Frontend (Next.js)**: Deployed to **Vercel** with client-side API communication to Cloud Run.
+
+### 1. Deploy Backend to Google Cloud Run
 ```bash
 gcloud run deploy civicops-backend \
   --source . \
   --region us-central1 \
   --allow-unauthenticated \
-  --set-env-vars="GOOGLE_CLOUD_PROJECT=YOUR_PROJECT_ID,FIRESTORE_DATABASE=(default),GCS_BUCKET=YOUR_BUCKET,CLOUD_TASKS_QUEUE=civicops-monitoring-queue,CLOUD_TASKS_LOCATION=us-central1" \
+  --set-env-vars="GOOGLE_CLOUD_PROJECT=YOUR_PROJECT_ID,FIRESTORE_DATABASE=(default),GCS_BUCKET=YOUR_BUCKET,CLOUD_TASKS_QUEUE=civicops-monitoring-queue,CLOUD_TASKS_LOCATION=us-central1,ALLOWED_ORIGINS=https://your-app.vercel.app,http://localhost:3000" \
   --set-secrets="GEMINI_API_KEY=civicops-gemini-api-key:latest"
 ```
-See [`docs/deployment.md`](docs/deployment.md) for full step-by-step cloud configuration.
+
+### 2. Deploy Frontend to Vercel
+1. Import repository to [Vercel](https://vercel.com) with root directory `frontend` (or using repository `vercel.json`).
+2. Add Environment Variable:
+   - `NEXT_PUBLIC_API_URL`: `https://civicops-backend-xyz.a.run.app` (your Cloud Run service URL).
+3. Deploy!
+
+See [`docs/deployment.md`](docs/deployment.md) for full step-by-step instructions.
+
 
 ---
 

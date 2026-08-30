@@ -7,7 +7,7 @@ FROM python:3.11-slim as base
 # Prevent Python from writing .pyc files and buffer stdout/stderr
 ENV PYTHONDONTWRITEBYTECODE=1 \
     PYTHONUNBUFFERED=1 \
-    PORT=8000 \
+    PORT=8080 \
     HOST=0.0.0.0
 
 WORKDIR /app
@@ -35,8 +35,8 @@ RUN useradd -m -u 1000 appuser && \
 
 USER appuser
 
-# Expose container port (Cloud Run sets PORT environment variable dynamically)
-EXPOSE 8000
+# Expose container port (Cloud Run sets PORT dynamically)
+EXPOSE 8080
 
-# Launch Uvicorn server bound to $PORT and $HOST
-CMD exec uvicorn backend.main:app --host ${HOST} --port ${PORT} --workers 1
+# Launch Uvicorn server bound to 0.0.0.0:$PORT
+CMD ["sh", "-c", "exec uvicorn backend.main:app --host 0.0.0.0 --port ${PORT:-8080}"]
