@@ -169,10 +169,12 @@ gcloud run deploy civicops-backend \
 ```
 
 ### 2. Deploy Frontend to Vercel
-1. Import repository to [Vercel](https://vercel.com) with root directory `frontend` (or using repository `vercel.json`).
-2. Add Environment Variable:
+1. Import repository to [Vercel](https://vercel.com).
+2. Under **Project Settings → General → Root Directory**, set it to `frontend` (where `package.json` resides).
+3. Add Environment Variable:
    - `NEXT_PUBLIC_API_URL`: `https://civicops-backend-xyz.a.run.app` (your Cloud Run service URL).
-3. Deploy!
+4. Deploy!
+
 
 See [`docs/deployment.md`](docs/deployment.md) for full step-by-step instructions.
 
