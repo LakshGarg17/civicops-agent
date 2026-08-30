@@ -1,0 +1,417 @@
+{
+  "cases": {
+    "CIV-2026-001": {
+      "case_id": "CIV-2026-001",
+      "title": "Property Tax Assessment Notice Correction",
+      "notice_type": "Property Tax Assessment Notice",
+      "status": "additional_information_required",
+      "deadline": "2026-09-15",
+      "notice": {
+        "notice_type": "Property Tax Assessment Notice",
+        "issuing_authority": "Travis County Appraisal District",
+        "department": "Appraisal Review Board",
+        "reference_number": "PROP-94021-TX",
+        "citizen_name": "Marcus Aurelius",
+        "property_id": "94021-TX",
+        "amount": "$4,850.00",
+        "issue": "Erroneous square footage valuation increase",
+        "deadline": "2026-09-15",
+        "required_action": "File Notice of Protest Form 50-132",
+        "mentioned_documents": [
+          "Property Tax Statement",
+          "Recorded Deed"
+        ]
+      },
+      "research": {
+        "procedure_name": "Property Tax Valuation Protest",
+        "authority": "Travis County Appraisal Review Board",
+        "submission_method": "Online Portal",
+        "required_documents": [
+          "Property Tax Notice",
+          "Recorded Deed",
+          "Recent Appraisal"
+        ],
+        "steps": [
+          "Submit Notice of Protest",
+          "Attend Informal Review",
+          "Receive ARB Determination"
+        ],
+        "deadline_information": "2026-09-15",
+        "fees": "$0.00",
+        "additional_requirements": [],
+        "source_information": [
+          "Texas Tax Code \u00a7 41.41"
+        ]
+      },
+      "workflow": {
+        "case_id": "CIV-2026-001",
+        "goal": "Dispute Property Tax Overvaluation",
+        "priority": "high",
+        "deadline": "2026-09-15",
+        "tasks": [
+          {
+            "id": "task_1",
+            "title": "Review Document Inventory",
+            "status": "completed",
+            "requires_user": false,
+            "description": "Verify property tax notice details and recorded deed.",
+            "category": "review"
+          },
+          {
+            "id": "task_2",
+            "title": "Draft Protest Application",
+            "status": "completed",
+            "requires_user": false,
+            "description": "Prepare formal petition to Appraisal Review Board.",
+            "category": "procedural"
+          },
+          {
+            "id": "task_followup_1788067362",
+            "title": "Upload ownership proof",
+            "status": "action_required",
+            "requires_user": true,
+            "description": "Provide a copy of your recorded deed, settlement statement, or property title certificate as requested by the board.",
+            "category": "document_upload"
+          }
+        ],
+        "missing_documents": [
+          "Recorded Deed"
+        ],
+        "matched_documents": [
+          "Property Tax Notice"
+        ]
+      },
+      "application": {
+        "to": "Travis County Appraisal Review Board",
+        "subject": "Formal Petition & Dispute: Property Tax Assessment Notice \u2014 Ref #PROP-94021-TX",
+        "property_id": "94021-TX",
+        "reference_number": "PROP-94021-TX",
+        "reason": "Regarding Property Tax Assessment Notice (Ref: PROP-94021-TX). Dispute or correction requested regarding: Erroneous square footage valuation increase.",
+        "requested_action": "File Notice of Protest Form 50-132",
+        "supporting_documents": [
+          "Property Tax Notice"
+        ],
+        "missing_documents": [
+          "Recorded Deed"
+        ],
+        "applicant_name": "Marcus Aurelius",
+        "date": "2026-08-30",
+        "additional_notes": "Filing submitted pursuant to Property Tax Valuation Protest. Submission channel: Online Portal.",
+        "status": "submitted"
+      },
+      "approval_record": {
+        "approved": true,
+        "action_type": "submit_application",
+        "approved_by": "Marcus Aurelius",
+        "timestamp": "2026-08-30T10:52:42.090307",
+        "token": "AUTH-TOK-CIV-2026-001-1788067362",
+        "notes": "Reviewed petition and confirmed grounds for protest."
+      },
+      "submission": {
+        "application_id": "CIV-2026-001",
+        "status": "submitted",
+        "submitted_at": "2026-08-30T10:52:42.094359",
+        "submission_method": "CivicOps Demo Gateway",
+        "confirmation_number": "DEMO-SUB-329308",
+        "is_sandbox": true,
+        "gateway_message": "Application received and registered in CivicOps Sandbox Demo Gateway. No real government database was contacted."
+      },
+      "timeline": [
+        {
+          "id": "evt_1",
+          "agent_name": "Document Agent",
+          "title": "Analyzed Civic Notice",
+          "description": "Extracted notice: Property Tax Assessment Notice, Reference: PROP-94021-TX",
+          "status": "completed",
+          "timestamp": "2026-08-30T10:52:42.080694",
+          "requires_approval": false
+        },
+        {
+          "id": "evt_2",
+          "agent_name": "Research Agent",
+          "title": "Researched Official Procedure",
+          "description": "Identified procedure: Property Tax Valuation Protest under Travis County Appraisal Review Board",
+          "status": "completed",
+          "timestamp": "2026-08-30T10:52:42.080694",
+          "requires_approval": false
+        },
+        {
+          "id": "evt_3",
+          "agent_name": "Workflow Agent",
+          "title": "Created Personalized Action Plan",
+          "description": "Generated 2 sequential tasks with 1 document upload requirements.",
+          "status": "completed",
+          "timestamp": "2026-08-30T10:52:42.080694",
+          "requires_approval": false
+        },
+        {
+          "id": "evt_4",
+          "agent_name": "Action Agent",
+          "title": "Prepared Formal Application Package",
+          "description": "Drafted petition to Travis County Appraisal Review Board regarding Formal Petition & Dispute: Property Tax Assessment Notice \u2014 Ref #PROP-94021-TX. Awaiting citizen review and authorization.",
+          "status": "completed",
+          "timestamp": "2026-08-30T10:52:42.083755",
+          "requires_approval": false
+        },
+        {
+          "id": "evt_5",
+          "agent_name": "Human Approver",
+          "title": "Explicit Human Authorization Granted",
+          "description": "Citizen 'Marcus Aurelius' reviewed and authorized action 'submit_application' for submission.",
+          "status": "completed",
+          "timestamp": "2026-08-30T10:52:42.090307",
+          "requires_approval": true
+        },
+        {
+          "id": "evt_6",
+          "agent_name": "Submission Agent",
+          "title": "Application Submitted (CivicOps Demo Gateway)",
+          "description": "Confirmation #DEMO-SUB-329308. Registered in sandbox demo environment.",
+          "status": "completed",
+          "timestamp": "2026-08-30T10:52:42.094359",
+          "requires_approval": false
+        },
+        {
+          "id": "evt_7",
+          "agent_name": "Monitoring Agent",
+          "title": "Autonomous Case Monitoring Active",
+          "description": "Tracking agency determination via background monitoring cycles.",
+          "status": "in_progress",
+          "timestamp": "2026-08-30T10:52:42.094359",
+          "requires_approval": false
+        },
+        {
+          "id": "evt_8",
+          "agent_name": "Monitoring Agent",
+          "title": "Status Change Detected (Additional Information Required)",
+          "description": "Additional ownership documentation is required by the reviewing authority before a determination can be made. Next action: Upload ownership proof.",
+          "status": "action_required",
+          "timestamp": "2026-08-30T10:52:42.103337",
+          "requires_approval": false
+        }
+      ],
+      "status_history": [
+        {
+          "update_id": "upd_1788067362094",
+          "case_id": "CIV-2026-001",
+          "previous_status": "approved",
+          "new_status": "submitted",
+          "message": "Application submitted to sandbox gateway. Autonomous monitoring active.",
+          "severity": "info",
+          "next_action": "Monitor agency review",
+          "source": "CivicOps Demo Gateway",
+          "timestamp": "2026-08-30T10:52:42.094359"
+        },
+        {
+          "update_id": "upd_1788067362103",
+          "case_id": "CIV-2026-001",
+          "previous_status": "submitted",
+          "new_status": "additional_information_required",
+          "message": "Additional ownership documentation is required by the reviewing authority before a determination can be made.",
+          "severity": "high",
+          "next_action": "Upload ownership proof",
+          "source": "Agency Portal Determination",
+          "timestamp": "2026-08-30T10:52:42.103337"
+        }
+      ],
+      "unread_notification": {
+        "notification_id": "notif_1788067362103",
+        "case_id": "CIV-2026-001",
+        "title": "CivicOps Update: Additional Information Required",
+        "message": "Additional ownership documentation is required by the reviewing authority before a determination can be made.",
+        "severity": "high",
+        "action_label": "Upload ownership proof",
+        "action_type": "upload_document",
+        "created_at": "2026-08-30T10:52:42.103337",
+        "unread": false
+      },
+      "created_at": "2026-08-30T10:52:42.080694",
+      "updated_at": "2026-08-30T10:52:42.115153"
+    },
+    "CIV-1004": {
+      "case_id": "CIV-1004",
+      "title": "Parking Citation Correction",
+      "notice_type": "Parking Citation",
+      "status": "draft",
+      "deadline": "December 15, 2024",
+      "notice": {
+        "notice_type": "Parking Citation",
+        "issuing_authority": "City of Metropolis",
+        "department": "Department of Transportation",
+        "reference_number": "PC-9912",
+        "citizen_name": "Not found",
+        "property_id": "Not found",
+        "amount": "$65.00",
+        "issue": "Street sweeping parking violation",
+        "deadline": "December 15, 2024",
+        "required_action": "Pay citation online or contest",
+        "mentioned_documents": [
+          "Parking Citation Notice",
+          "Proof of Permit"
+        ]
+      },
+      "research": {
+        "procedure_name": "Administrative Review of Parking Citation",
+        "authority": "Department of Transportation",
+        "submission_method": "Online Citation Dispute Web Portal",
+        "required_documents": [
+          "Parking Citation Notice",
+          "Proof of Permit"
+        ],
+        "steps": [
+          "Submit review online",
+          "Await agency ruling"
+        ],
+        "deadline_information": "Within 21 calendar days",
+        "fees": "$0 for initial review",
+        "additional_requirements": [],
+        "source_information": [
+          "metropolis.gov/transportation"
+        ]
+      },
+      "workflow": {
+        "case_id": "CIV-1004",
+        "goal": "Resolve Parking Citation \u2014 Administrative Review of Parking Citation",
+        "priority": "high",
+        "deadline": "December 15, 2024",
+        "tasks": [
+          {
+            "id": "task_1",
+            "title": "Analyze uploaded notice & extract key citations",
+            "status": "completed",
+            "requires_user": false,
+            "description": "Extracted notice type: Parking Citation, reference: PC-9912",
+            "category": "review"
+          },
+          {
+            "id": "task_2",
+            "title": "Research official municipal procedure & requirements",
+            "status": "completed",
+            "requires_user": false,
+            "description": "Identified procedure: Administrative Review of Parking Citation under Department of Transportation",
+            "category": "review"
+          },
+          {
+            "id": "task_3",
+            "title": "Upload Proof of Permit",
+            "status": "pending",
+            "requires_user": true,
+            "description": "Mandatory supporting document required by Department of Transportation.",
+            "category": "document_upload"
+          },
+          {
+            "id": "task_4",
+            "title": "Submit review online",
+            "status": "pending",
+            "requires_user": false,
+            "description": "Submission method: Online Citation Dispute Web Portal",
+            "category": "submission"
+          },
+          {
+            "id": "task_5",
+            "title": "Await agency ruling",
+            "status": "pending",
+            "requires_user": false,
+            "description": "Submission method: Online Citation Dispute Web Portal",
+            "category": "procedural"
+          }
+        ],
+        "missing_documents": [
+          "Proof of Permit"
+        ],
+        "matched_documents": [
+          "Parking Citation Notice"
+        ]
+      },
+      "application": null,
+      "approval_record": null,
+      "submission": null,
+      "timeline": [
+        {
+          "id": "evt_1",
+          "agent_name": "Document Agent",
+          "title": "Analyzed Civic Notice",
+          "description": "Extracted notice: Parking Citation, Reference: PC-9912",
+          "status": "completed",
+          "timestamp": "2026-08-30T10:52:42.929720",
+          "requires_approval": false
+        },
+        {
+          "id": "evt_2",
+          "agent_name": "Research Agent",
+          "title": "Researched Official Procedure",
+          "description": "Identified procedure: Administrative Review of Parking Citation under Department of Transportation",
+          "status": "completed",
+          "timestamp": "2026-08-30T10:52:42.929720",
+          "requires_approval": false
+        },
+        {
+          "id": "evt_3",
+          "agent_name": "Workflow Agent",
+          "title": "Created Personalized Action Plan",
+          "description": "Generated 5 sequential tasks with 1 document upload requirements.",
+          "status": "completed",
+          "timestamp": "2026-08-30T10:52:42.929720",
+          "requires_approval": false
+        }
+      ],
+      "status_history": [],
+      "unread_notification": null,
+      "created_at": "2026-08-30T10:52:42.929720",
+      "updated_at": "2026-08-30T10:52:42.929720"
+    }
+  },
+  "documents": {
+    "DOC-6792D7C9": {
+      "document_id": "DOC-6792D7C9",
+      "case_id": "incoming_upload",
+      "filename": "property_tax_notice.pdf",
+      "storage_path": "cases/incoming_upload/DOC-6792D7C9_property_tax_notice.pdf",
+      "gcs_uri": "local://D:\\Projects\\CivicOps-autonomous government workflow agent\\backend\\uploads\\DOC-6792D7C9_property_tax_notice.pdf",
+      "local_path": "D:\\Projects\\CivicOps-autonomous government workflow agent\\backend\\uploads\\DOC-6792D7C9_property_tax_notice.pdf",
+      "document_type": "government_notice",
+      "file_size_bytes": 23,
+      "content_type": "application/pdf",
+      "uploaded_at": "2026-08-30T10:52:42.905827"
+    },
+    "DOC-121B607C": {
+      "document_id": "DOC-121B607C",
+      "case_id": "incoming_upload",
+      "filename": "citation_photo.png",
+      "storage_path": "cases/incoming_upload/DOC-121B607C_citation_photo.png",
+      "gcs_uri": "local://D:\\Projects\\CivicOps-autonomous government workflow agent\\backend\\uploads\\DOC-121B607C_citation_photo.png",
+      "local_path": "D:\\Projects\\CivicOps-autonomous government workflow agent\\backend\\uploads\\DOC-121B607C_citation_photo.png",
+      "document_type": "government_notice",
+      "file_size_bytes": 16,
+      "content_type": "image/png",
+      "uploaded_at": "2026-08-30T10:52:42.913357"
+    }
+  },
+  "workflows": {},
+  "applications": {},
+  "status_updates": {
+    "upd_1788067362094": {
+      "update_id": "upd_1788067362094",
+      "case_id": "CIV-2026-001",
+      "previous_status": "approved",
+      "new_status": "submitted",
+      "message": "Application submitted to sandbox gateway. Autonomous monitoring active.",
+      "severity": "info",
+      "next_action": "Monitor agency review",
+      "source": "CivicOps Demo Gateway",
+      "timestamp": "2026-08-30T10:52:42.094359"
+    },
+    "upd_1788067362103": {
+      "update_id": "upd_1788067362103",
+      "case_id": "CIV-2026-001",
+      "previous_status": "submitted",
+      "new_status": "additional_information_required",
+      "message": "Additional ownership documentation is required by the reviewing authority before a determination can be made.",
+      "severity": "high",
+      "next_action": "Upload ownership proof",
+      "source": "Agency Portal Determination",
+      "timestamp": "2026-08-30T10:52:42.103337"
+    }
+  },
+  "users": {}
+}

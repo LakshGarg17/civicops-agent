@@ -1,0 +1,31 @@
+DEPARTMENT OF BUILDING INSPECTION & SAFETY
+CITY OF OAKRIDGE
+100 Civic Center Plaza, Suite 300, Oakridge, CA 94501
+
+PLAN CHECK CORRECTION NOTICE / DEFICIENCY LIST
+APPLICATION NUMBER: BLD-2024-88412
+PROJECT ADDRESS: 1204 Pine Ridge Way, Oakridge, CA
+PROJECT TYPE: Single Family Residential - Solar & Battery Storage Installation
+APPLICANT: Johnathan Vance, Master Electrician (Lic #882104)
+DATE ISSUED: November 02, 2024
+PLAN CHECK ENGINEER: Robert Martinez, PE (Ext. 4412)
+
+STATUS: REVISIONS REQUIRED PRIOR TO PERMIT ISSUANCE
+
+The plan check review for your permit application has been completed. The plans cannot be approved as submitted. Please address the following list of corrections:
+
+1. STRUCTURAL / ROOF LOAD CALCULATION (Ref: CBC Sec. 1505.1):
+   Provide stamped structural engineering calculations demonstrating that existing 2x4 roof rafters (24" O.C.) are sufficient to support the additional dead load of 18 PV modules (42 lbs each) and wind uplift resistance for Exposure Category C.
+
+2. SINGLE-LINE ELECTRICAL DIAGRAM (Ref: CEC Art. 705 / 706):
+   - Clarify the location and rating of the AC disconnect switch. Must be externally operable, lockable in the OFF position, and located within 10 feet of the main electrical utility meter.
+   - Specify rapid shutdown compliance per NEC 690.12.
+
+3. BATTERY ENERGY STORAGE CLEARANCES (Ref: CFC Sec. 1207):
+   The proposed Tesla Powerwall 3 location in the garage must maintain a minimum 36-inch clearance from vehicle parking paths or include certified bollard impact protection.
+
+RESUBMISSION INSTRUCTIONS:
+- Cloud all revisions on delta sheets.
+- Submit two (2) corrected digital plan sets via the Oakridge Citizen Portal (portal.oakridge.gov/permits) referencing Application #BLD-2024-88412.
+- A Plan Check Re-review fee of $185.00 will apply upon second resubmission.
+- Re-check response must be filed within 60 calendar days (Deadline: January 01, 2025) or this application will be deemed abandoned.

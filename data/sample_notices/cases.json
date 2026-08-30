@@ -1,0 +1,680 @@
+{
+  "CIV-1005": {
+    "case_id": "CIV-1005",
+    "status": "draft",
+    "notice": {
+      "notice_type": "Parking Citation",
+      "issuing_authority": "City of Metropolis",
+      "department": "Department of Transportation",
+      "reference_number": "PC-9912",
+      "citizen_name": "Not found",
+      "property_id": "Not found",
+      "amount": "$65.00",
+      "issue": "Street sweeping parking violation",
+      "deadline": "December 15, 2024",
+      "required_action": "Pay citation online or contest",
+      "mentioned_documents": [
+        "Parking Citation Notice",
+        "Proof of Permit"
+      ]
+    },
+    "research": {
+      "procedure_name": "Administrative Review of Parking Citation",
+      "authority": "Department of Transportation",
+      "submission_method": "Online Citation Dispute Web Portal",
+      "required_documents": [
+        "Parking Citation Notice",
+        "Proof of Permit"
+      ],
+      "steps": [
+        "Submit review online",
+        "Await agency ruling"
+      ],
+      "deadline_information": "Within 21 calendar days",
+      "fees": "$0 for initial review",
+      "additional_requirements": [],
+      "source_information": [
+        "metropolis.gov/transportation"
+      ]
+    },
+    "workflow": {
+      "case_id": "CIV-1005",
+      "goal": "Resolve Parking Citation \u2014 Administrative Review of Parking Citation",
+      "priority": "high",
+      "deadline": "December 15, 2024",
+      "tasks": [
+        {
+          "id": "task_1",
+          "title": "Analyze uploaded notice & extract key citations",
+          "status": "completed",
+          "requires_user": false,
+          "description": "Extracted notice type: Parking Citation, reference: PC-9912",
+          "category": "review"
+        },
+        {
+          "id": "task_2",
+          "title": "Research official municipal procedure & requirements",
+          "status": "completed",
+          "requires_user": false,
+          "description": "Identified procedure: Administrative Review of Parking Citation under Department of Transportation",
+          "category": "review"
+        },
+        {
+          "id": "task_3",
+          "title": "Upload Proof of Permit",
+          "status": "pending",
+          "requires_user": true,
+          "description": "Mandatory supporting document required by Department of Transportation.",
+          "category": "document_upload"
+        },
+        {
+          "id": "task_4",
+          "title": "Submit review online",
+          "status": "pending",
+          "requires_user": false,
+          "description": "Submission method: Online Citation Dispute Web Portal",
+          "category": "submission"
+        },
+        {
+          "id": "task_5",
+          "title": "Await agency ruling",
+          "status": "pending",
+          "requires_user": false,
+          "description": "Submission method: Online Citation Dispute Web Portal",
+          "category": "procedural"
+        }
+      ],
+      "missing_documents": [
+        "Proof of Permit"
+      ],
+      "matched_documents": [
+        "Parking Citation Notice"
+      ]
+    },
+    "application": null,
+    "approval_record": null,
+    "submission": null,
+    "timeline": [
+      {
+        "id": "evt_1",
+        "agent_name": "Document Agent",
+        "title": "Analyzed Civic Notice",
+        "description": "Extracted notice: Parking Citation, Reference: PC-9912",
+        "status": "completed",
+        "timestamp": "2026-08-29T13:29:02.268627",
+        "requires_approval": false
+      },
+      {
+        "id": "evt_2",
+        "agent_name": "Research Agent",
+        "title": "Researched Official Procedure",
+        "description": "Identified procedure: Administrative Review of Parking Citation under Department of Transportation",
+        "status": "completed",
+        "timestamp": "2026-08-29T13:29:02.268627",
+        "requires_approval": false
+      },
+      {
+        "id": "evt_3",
+        "agent_name": "Workflow Agent",
+        "title": "Created Personalized Action Plan",
+        "description": "Generated 5 sequential tasks with 1 document upload requirements.",
+        "status": "completed",
+        "timestamp": "2026-08-29T13:29:02.268627",
+        "requires_approval": false
+      }
+    ],
+    "created_at": "2026-08-29T13:29:02.268627",
+    "updated_at": "2026-08-29T13:29:02.268627"
+  },
+  "CIV-TEST-4001": {
+    "case_id": "CIV-TEST-4001",
+    "status": "submitted",
+    "notice": {
+      "notice_type": "Property Tax Delinquency Notice",
+      "issuing_authority": "County of Kings",
+      "department": "Office of the Tax Collector",
+      "reference_number": "APN-4920-038-012",
+      "citizen_name": "Jane Doe",
+      "property_id": "Parcel 4920-038-012",
+      "amount": "$4,911.25",
+      "issue": "Unpaid property tax installment",
+      "deadline": "November 30, 2024",
+      "required_action": "Pay online or submit Dispute Form TC-409",
+      "mentioned_documents": [
+        "Dispute Form TC-409"
+      ]
+    },
+    "research": {
+      "procedure_name": "Property Tax Delinquency & Assessment Dispute",
+      "authority": "County Office of the Tax Collector",
+      "submission_method": "County Tax Portal Online Submission",
+      "required_documents": [
+        "Dispute Form TC-409",
+        "Proof of Prior Payment"
+      ],
+      "steps": [
+        "Complete Form",
+        "Submit via portal"
+      ],
+      "deadline_information": "November 30, 2024",
+      "fees": "$0 filing fee",
+      "additional_requirements": [],
+      "source_information": [
+        "kingscounty.gov/taxes"
+      ]
+    },
+    "workflow": {
+      "case_id": "CIV-TEST-4001",
+      "goal": "Resolve Property Tax Delinquency",
+      "priority": "high",
+      "deadline": "November 30, 2024",
+      "tasks": [
+        {
+          "id": "task_1",
+          "title": "Prepare formal application",
+          "status": "completed",
+          "requires_user": false,
+          "description": "",
+          "category": "procedural"
+        },
+        {
+          "id": "task_2",
+          "title": "Submit application to Tax Collector",
+          "status": "completed",
+          "requires_user": true,
+          "description": "",
+          "category": "procedural"
+        }
+      ],
+      "missing_documents": [
+        "Proof of Prior Payment"
+      ],
+      "matched_documents": [
+        "Dispute Form TC-409"
+      ]
+    },
+    "application": {
+      "to": "County Office of the Tax Collector",
+      "subject": "Formal Petition & Dispute: Property Tax Delinquency Notice \u2014 Ref #APN-4920-038-012",
+      "property_id": "Parcel 4920-038-012",
+      "reference_number": "APN-4920-038-012",
+      "reason": "Regarding Property Tax Delinquency Notice (Ref: APN-4920-038-012). Dispute or correction requested regarding: Unpaid property tax installment.",
+      "requested_action": "Pay online or submit Dispute Form TC-409",
+      "supporting_documents": [
+        "Dispute Form TC-409"
+      ],
+      "missing_documents": [
+        "Proof of Prior Payment"
+      ],
+      "applicant_name": "Jane M. Doe",
+      "date": "2026-08-30",
+      "additional_notes": "Expedited review requested due to imminent assessment deadline.",
+      "status": "submitted"
+    },
+    "approval_record": {
+      "approved": true,
+      "action_type": "submit_application",
+      "approved_by": "Jane M. Doe (Citizen)",
+      "timestamp": "2026-08-30T10:31:38.504673",
+      "token": "AUTH-TOK-CIV-TEST-4001-1788066098",
+      "notes": "Reviewed and confirmed all details."
+    },
+    "submission": {
+      "application_id": "CIV-TEST-4001",
+      "status": "submitted",
+      "submitted_at": "2026-08-30T10:31:38.509916",
+      "submission_method": "CivicOps Demo Gateway",
+      "confirmation_number": "DEMO-SUB-501305",
+      "is_sandbox": true,
+      "gateway_message": "Application received and registered in CivicOps Sandbox Demo Gateway. No real government database was contacted."
+    },
+    "timeline": [
+      {
+        "id": "evt_1",
+        "agent_name": "Document Agent",
+        "title": "Analyzed Civic Notice",
+        "description": "Extracted notice: Property Tax Delinquency Notice, Reference: APN-4920-038-012",
+        "status": "completed",
+        "timestamp": "2026-08-30T10:31:38.491269",
+        "requires_approval": false
+      },
+      {
+        "id": "evt_2",
+        "agent_name": "Research Agent",
+        "title": "Researched Official Procedure",
+        "description": "Identified procedure: Property Tax Delinquency & Assessment Dispute under County Office of the Tax Collector",
+        "status": "completed",
+        "timestamp": "2026-08-30T10:31:38.491269",
+        "requires_approval": false
+      },
+      {
+        "id": "evt_3",
+        "agent_name": "Workflow Agent",
+        "title": "Created Personalized Action Plan",
+        "description": "Generated 2 sequential tasks with 1 document upload requirements.",
+        "status": "completed",
+        "timestamp": "2026-08-30T10:31:38.491269",
+        "requires_approval": false
+      },
+      {
+        "id": "evt_4",
+        "agent_name": "Action Agent",
+        "title": "Prepared Formal Application Package",
+        "description": "Drafted petition to County Office of the Tax Collector regarding Formal Petition & Dispute: Property Tax Delinquency Notice \u2014 Ref #APN-4920-038-012. Awaiting citizen review and authorization.",
+        "status": "completed",
+        "timestamp": "2026-08-30T10:31:38.495643",
+        "requires_approval": false
+      },
+      {
+        "id": "evt_5",
+        "agent_name": "Human Approver",
+        "title": "Explicit Human Authorization Granted",
+        "description": "Citizen 'Jane M. Doe (Citizen)' reviewed and authorized action 'submit_application' for submission.",
+        "status": "completed",
+        "timestamp": "2026-08-30T10:31:38.504673",
+        "requires_approval": true
+      },
+      {
+        "id": "evt_6",
+        "agent_name": "Submission Agent",
+        "title": "Application Submitted (CivicOps Demo Gateway)",
+        "description": "Confirmation #DEMO-SUB-501305. Registered in sandbox demo environment.",
+        "status": "completed",
+        "timestamp": "2026-08-30T10:31:38.509916",
+        "requires_approval": false
+      },
+      {
+        "id": "evt_7",
+        "agent_name": "Monitoring Agent",
+        "title": "Awaiting Agency Determination",
+        "description": "Sandbox filing registered. Monitoring agent will track confirmation status in future milestone.",
+        "status": "in_progress",
+        "timestamp": "2026-08-30T10:31:38.509916",
+        "requires_approval": false
+      }
+    ],
+    "created_at": "2026-08-30T10:31:38.491269",
+    "updated_at": "2026-08-30T10:31:38.509916"
+  },
+  "CIV-1007": {
+    "case_id": "CIV-1007",
+    "status": "draft",
+    "notice": {
+      "notice_type": "Parking Citation",
+      "issuing_authority": "City of Metropolis",
+      "department": "Department of Transportation",
+      "reference_number": "PC-9912",
+      "citizen_name": "Not found",
+      "property_id": "Not found",
+      "amount": "$65.00",
+      "issue": "Street sweeping parking violation",
+      "deadline": "December 15, 2024",
+      "required_action": "Pay citation online or contest",
+      "mentioned_documents": [
+        "Parking Citation Notice",
+        "Proof of Permit"
+      ]
+    },
+    "research": {
+      "procedure_name": "Administrative Review of Parking Citation",
+      "authority": "Department of Transportation",
+      "submission_method": "Online Citation Dispute Web Portal",
+      "required_documents": [
+        "Parking Citation Notice",
+        "Proof of Permit"
+      ],
+      "steps": [
+        "Submit review online",
+        "Await agency ruling"
+      ],
+      "deadline_information": "Within 21 calendar days",
+      "fees": "$0 for initial review",
+      "additional_requirements": [],
+      "source_information": [
+        "metropolis.gov/transportation"
+      ]
+    },
+    "workflow": {
+      "case_id": "CIV-1007",
+      "goal": "Resolve Parking Citation \u2014 Administrative Review of Parking Citation",
+      "priority": "high",
+      "deadline": "December 15, 2024",
+      "tasks": [
+        {
+          "id": "task_1",
+          "title": "Analyze uploaded notice & extract key citations",
+          "status": "completed",
+          "requires_user": false,
+          "description": "Extracted notice type: Parking Citation, reference: PC-9912",
+          "category": "review"
+        },
+        {
+          "id": "task_2",
+          "title": "Research official municipal procedure & requirements",
+          "status": "completed",
+          "requires_user": false,
+          "description": "Identified procedure: Administrative Review of Parking Citation under Department of Transportation",
+          "category": "review"
+        },
+        {
+          "id": "task_3",
+          "title": "Upload Proof of Permit",
+          "status": "pending",
+          "requires_user": true,
+          "description": "Mandatory supporting document required by Department of Transportation.",
+          "category": "document_upload"
+        },
+        {
+          "id": "task_4",
+          "title": "Submit review online",
+          "status": "pending",
+          "requires_user": false,
+          "description": "Submission method: Online Citation Dispute Web Portal",
+          "category": "submission"
+        },
+        {
+          "id": "task_5",
+          "title": "Await agency ruling",
+          "status": "pending",
+          "requires_user": false,
+          "description": "Submission method: Online Citation Dispute Web Portal",
+          "category": "procedural"
+        }
+      ],
+      "missing_documents": [
+        "Proof of Permit"
+      ],
+      "matched_documents": [
+        "Parking Citation Notice"
+      ]
+    },
+    "application": null,
+    "approval_record": null,
+    "submission": null,
+    "timeline": [
+      {
+        "id": "evt_1",
+        "agent_name": "Document Agent",
+        "title": "Analyzed Civic Notice",
+        "description": "Extracted notice: Parking Citation, Reference: PC-9912",
+        "status": "completed",
+        "timestamp": "2026-08-30T10:30:23.452500",
+        "requires_approval": false
+      },
+      {
+        "id": "evt_2",
+        "agent_name": "Research Agent",
+        "title": "Researched Official Procedure",
+        "description": "Identified procedure: Administrative Review of Parking Citation under Department of Transportation",
+        "status": "completed",
+        "timestamp": "2026-08-30T10:30:23.452500",
+        "requires_approval": false
+      },
+      {
+        "id": "evt_3",
+        "agent_name": "Workflow Agent",
+        "title": "Created Personalized Action Plan",
+        "description": "Generated 5 sequential tasks with 1 document upload requirements.",
+        "status": "completed",
+        "timestamp": "2026-08-30T10:30:23.452500",
+        "requires_approval": false
+      }
+    ],
+    "created_at": "2026-08-30T10:30:23.452500",
+    "updated_at": "2026-08-30T10:30:23.452500"
+  },
+  "CIV-1009": {
+    "case_id": "CIV-1009",
+    "status": "draft",
+    "notice": {
+      "notice_type": "Parking Citation",
+      "issuing_authority": "City of Metropolis",
+      "department": "Department of Transportation",
+      "reference_number": "PC-9912",
+      "citizen_name": "Not found",
+      "property_id": "Not found",
+      "amount": "$65.00",
+      "issue": "Street sweeping parking violation",
+      "deadline": "December 15, 2024",
+      "required_action": "Pay citation online or contest",
+      "mentioned_documents": [
+        "Parking Citation Notice",
+        "Proof of Permit"
+      ]
+    },
+    "research": {
+      "procedure_name": "Administrative Review of Parking Citation",
+      "authority": "Department of Transportation",
+      "submission_method": "Online Citation Dispute Web Portal",
+      "required_documents": [
+        "Parking Citation Notice",
+        "Proof of Permit"
+      ],
+      "steps": [
+        "Submit review online",
+        "Await agency ruling"
+      ],
+      "deadline_information": "Within 21 calendar days",
+      "fees": "$0 for initial review",
+      "additional_requirements": [],
+      "source_information": [
+        "metropolis.gov/transportation"
+      ]
+    },
+    "workflow": {
+      "case_id": "CIV-1009",
+      "goal": "Resolve Parking Citation \u2014 Administrative Review of Parking Citation",
+      "priority": "high",
+      "deadline": "December 15, 2024",
+      "tasks": [
+        {
+          "id": "task_1",
+          "title": "Analyze uploaded notice & extract key citations",
+          "status": "completed",
+          "requires_user": false,
+          "description": "Extracted notice type: Parking Citation, reference: PC-9912",
+          "category": "review"
+        },
+        {
+          "id": "task_2",
+          "title": "Research official municipal procedure & requirements",
+          "status": "completed",
+          "requires_user": false,
+          "description": "Identified procedure: Administrative Review of Parking Citation under Department of Transportation",
+          "category": "review"
+        },
+        {
+          "id": "task_3",
+          "title": "Upload Proof of Permit",
+          "status": "pending",
+          "requires_user": true,
+          "description": "Mandatory supporting document required by Department of Transportation.",
+          "category": "document_upload"
+        },
+        {
+          "id": "task_4",
+          "title": "Submit review online",
+          "status": "pending",
+          "requires_user": false,
+          "description": "Submission method: Online Citation Dispute Web Portal",
+          "category": "submission"
+        },
+        {
+          "id": "task_5",
+          "title": "Await agency ruling",
+          "status": "pending",
+          "requires_user": false,
+          "description": "Submission method: Online Citation Dispute Web Portal",
+          "category": "procedural"
+        }
+      ],
+      "missing_documents": [
+        "Proof of Permit"
+      ],
+      "matched_documents": [
+        "Parking Citation Notice"
+      ]
+    },
+    "application": null,
+    "approval_record": null,
+    "submission": null,
+    "timeline": [
+      {
+        "id": "evt_1",
+        "agent_name": "Document Agent",
+        "title": "Analyzed Civic Notice",
+        "description": "Extracted notice: Parking Citation, Reference: PC-9912",
+        "status": "completed",
+        "timestamp": "2026-08-29T13:32:49.319974",
+        "requires_approval": false
+      },
+      {
+        "id": "evt_2",
+        "agent_name": "Research Agent",
+        "title": "Researched Official Procedure",
+        "description": "Identified procedure: Administrative Review of Parking Citation under Department of Transportation",
+        "status": "completed",
+        "timestamp": "2026-08-29T13:32:49.319974",
+        "requires_approval": false
+      },
+      {
+        "id": "evt_3",
+        "agent_name": "Workflow Agent",
+        "title": "Created Personalized Action Plan",
+        "description": "Generated 5 sequential tasks with 1 document upload requirements.",
+        "status": "completed",
+        "timestamp": "2026-08-29T13:32:49.319974",
+        "requires_approval": false
+      }
+    ],
+    "created_at": "2026-08-29T13:32:49.319974",
+    "updated_at": "2026-08-29T13:32:49.319974"
+  },
+  "CIV-1003": {
+    "case_id": "CIV-1003",
+    "status": "draft",
+    "notice": {
+      "notice_type": "Parking Citation",
+      "issuing_authority": "City of Metropolis",
+      "department": "Department of Transportation",
+      "reference_number": "PC-9912",
+      "citizen_name": "Not found",
+      "property_id": "Not found",
+      "amount": "$65.00",
+      "issue": "Street sweeping parking violation",
+      "deadline": "December 15, 2024",
+      "required_action": "Pay citation online or contest",
+      "mentioned_documents": [
+        "Parking Citation Notice",
+        "Proof of Permit"
+      ]
+    },
+    "research": {
+      "procedure_name": "Administrative Review of Parking Citation",
+      "authority": "Department of Transportation",
+      "submission_method": "Online Citation Dispute Web Portal",
+      "required_documents": [
+        "Parking Citation Notice",
+        "Proof of Permit"
+      ],
+      "steps": [
+        "Submit review online",
+        "Await agency ruling"
+      ],
+      "deadline_information": "Within 21 calendar days",
+      "fees": "$0 for initial review",
+      "additional_requirements": [],
+      "source_information": [
+        "metropolis.gov/transportation"
+      ]
+    },
+    "workflow": {
+      "case_id": "CIV-1003",
+      "goal": "Resolve Parking Citation \u2014 Administrative Review of Parking Citation",
+      "priority": "high",
+      "deadline": "December 15, 2024",
+      "tasks": [
+        {
+          "id": "task_1",
+          "title": "Analyze uploaded notice & extract key citations",
+          "status": "completed",
+          "requires_user": false,
+          "description": "Extracted notice type: Parking Citation, reference: PC-9912",
+          "category": "review"
+        },
+        {
+          "id": "task_2",
+          "title": "Research official municipal procedure & requirements",
+          "status": "completed",
+          "requires_user": false,
+          "description": "Identified procedure: Administrative Review of Parking Citation under Department of Transportation",
+          "category": "review"
+        },
+        {
+          "id": "task_3",
+          "title": "Upload Proof of Permit",
+          "status": "pending",
+          "requires_user": true,
+          "description": "Mandatory supporting document required by Department of Transportation.",
+          "category": "document_upload"
+        },
+        {
+          "id": "task_4",
+          "title": "Submit review online",
+          "status": "pending",
+          "requires_user": false,
+          "description": "Submission method: Online Citation Dispute Web Portal",
+          "category": "submission"
+        },
+        {
+          "id": "task_5",
+          "title": "Await agency ruling",
+          "status": "pending",
+          "requires_user": false,
+          "description": "Submission method: Online Citation Dispute Web Portal",
+          "category": "procedural"
+        }
+      ],
+      "missing_documents": [
+        "Proof of Permit"
+      ],
+      "matched_documents": [
+        "Parking Citation Notice"
+      ]
+    },
+    "application": null,
+    "approval_record": null,
+    "submission": null,
+    "timeline": [
+      {
+        "id": "evt_1",
+        "agent_name": "Document Agent",
+        "title": "Analyzed Civic Notice",
+        "description": "Extracted notice: Parking Citation, Reference: PC-9912",
+        "status": "completed",
+        "timestamp": "2026-08-30T10:31:39.637859",
+        "requires_approval": false
+      },
+      {
+        "id": "evt_2",
+        "agent_name": "Research Agent",
+        "title": "Researched Official Procedure",
+        "description": "Identified procedure: Administrative Review of Parking Citation under Department of Transportation",
+        "status": "completed",
+        "timestamp": "2026-08-30T10:31:39.637859",
+        "requires_approval": false
+      },
+      {
+        "id": "evt_3",
+        "agent_name": "Workflow Agent",
+        "title": "Created Personalized Action Plan",
+        "description": "Generated 5 sequential tasks with 1 document upload requirements.",
+        "status": "completed",
+        "timestamp": "2026-08-30T10:31:39.637859",
+        "requires_approval": false
+      }
+    ],
+    "created_at": "2026-08-30T10:31:39.637859",
+    "updated_at": "2026-08-30T10:31:39.637859"
+  }
+}
