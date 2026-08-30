@@ -764,15 +764,11 @@ export default function Home() {
 
       {/* 5-Agent Architecture Footer Summary */}
       <div className="border-t border-slate-200/80 pt-8 space-y-4">
-        <div className="flex items-center justify-between">
-          <div>
-            <h3 className="text-base font-bold text-slate-900">CivicOps Autonomous 5-Agent Architecture</h3>
-            <p className="text-xs text-slate-500">Autonomous preparation with human-in-the-loop governance and continuous monitoring</p>
-          </div>
-          <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-            Day 6 Production Ready
-          </span>
+        <div>
+          <h3 className="text-base font-bold text-slate-900">CivicOps Autonomous 5-Agent Architecture</h3>
+          <p className="text-xs text-slate-500">Autonomous preparation with human-in-the-loop governance and continuous monitoring</p>
         </div>
+
 
         <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
           <div className="p-3.5 bg-white rounded-2xl border border-slate-200/80 space-y-1 shadow-2xs">
