@@ -1,14 +1,21 @@
+"""
+Document Service for CivicOps.
+Handles document ingestion, validation, Google Cloud Storage / local storage routing,
+Firestore metadata indexing, and DocumentAgent extraction.
+"""
+
 import logging
 import os
 import uuid
 from pathlib import Path
-from typing import Dict, Any, Tuple
+from typing import Dict, Any, Tuple, Optional
 from fastapi import UploadFile, HTTPException
 
 from backend.config import UPLOAD_DIR, MAX_FILE_SIZE_MB
 from backend.agents.document_agent import DocumentAgent
 from backend.models.notice import NoticeStructuredData
 from backend.models.schemas import UploadResponse
+from backend.services.storage_service import storage_service, StorageService
 
 logger = logging.getLogger("civicops.document_service")
 
@@ -22,21 +29,27 @@ ALLOWED_MIME_TYPES = {
 }
 
 PROCESSING_STAGES = [
-    "Uploading document",
-    "Reading document",
-    "Extracting information",
-    "Identifying notice type",
+    "Uploading document to Cloud Storage",
+    "Indexing metadata in Firestore",
+    "Extracting civic information",
+    "Identifying notice type & authority",
     "Building notice summary"
 ]
 
+
 class DocumentService:
     """
-    Service responsible for document ingestion, local disk persistence,
+    Service responsible for document ingestion, GCS storage, Firestore metadata tracking,
     validation, and routing to the DocumentAgent.
     """
 
-    def __init__(self, document_agent: DocumentAgent = None):
+    def __init__(
+        self,
+        document_agent: Optional[DocumentAgent] = None,
+        storage_svc: Optional[StorageService] = None
+    ):
         self.agent = document_agent or DocumentAgent()
+        self.storage = storage_svc or storage_service
 
     def validate_file(self, filename: str, content_type: str = "", file_size: int = 0) -> None:
         """
@@ -59,9 +72,10 @@ class DocumentService:
                 detail=f"File size ({file_size / (1024*1024):.1f}MB) exceeds maximum limit of {MAX_FILE_SIZE_MB}MB."
             )
 
-    async def save_uploaded_file(self, upload_file: UploadFile) -> Tuple[Path, bytes]:
+    async def save_uploaded_file(self, upload_file: UploadFile) -> Tuple[str, bytes, Dict[str, Any]]:
         """
-        Reads and saves the uploaded file locally to UPLOAD_DIR.
+        Reads, validates, and uploads file via StorageService (saving to GCS and local disk).
+        Returns (local_path_or_storage_path, content_bytes, metadata_dict).
         """
         content_bytes = await upload_file.read()
         if len(content_bytes) == 0:
@@ -73,25 +87,26 @@ class DocumentService:
             file_size=len(content_bytes)
         )
 
-        safe_prefix = uuid.uuid4().hex[:8]
-        clean_name = Path(upload_file.filename).name.replace(" ", "_")
-        target_path = UPLOAD_DIR / f"{safe_prefix}_{clean_name}"
+        content_type = upload_file.content_type or self.agent._determine_mime_type(Path(upload_file.filename))
 
-        try:
-            with open(target_path, "wb") as f:
-                f.write(content_bytes)
-            logger.info(f"Saved uploaded file to: {target_path}")
-        except Exception as e:
-            logger.error(f"Failed to write uploaded file to disk: {e}", exc_info=True)
-            raise HTTPException(status_code=500, detail=f"Failed to save uploaded file locally: {str(e)}")
+        # Upload via storage service (saves to GCS & writes metadata to Firestore)
+        doc_metadata = self.storage.upload_document(
+            file_bytes=content_bytes,
+            filename=upload_file.filename,
+            case_id="incoming_upload",
+            document_type="government_notice",
+            content_type=content_type
+        )
 
-        return target_path, content_bytes
+        local_path = doc_metadata.get("local_path") or str(UPLOAD_DIR / upload_file.filename)
+        return local_path, content_bytes, doc_metadata
 
     async def process_upload(self, upload_file: UploadFile) -> UploadResponse:
         """
-        Orchestrates full upload pipeline: file save -> DocumentAgent -> NoticeStructuredData -> UploadResponse.
+        Orchestrates full upload pipeline:
+        File Read -> StorageService (GCS + Firestore) -> DocumentAgent -> NoticeStructuredData -> UploadResponse.
         """
-        target_path, content_bytes = await self.save_uploaded_file(upload_file)
+        target_path, content_bytes, doc_metadata = await self.save_uploaded_file(upload_file)
 
         try:
             # Invoke DocumentAgent
@@ -117,11 +132,18 @@ class DocumentService:
                 extracted_text=notice_data.issue,
                 ai_response=overview_text,
                 metadata={
+                    "document_id": doc_metadata.get("document_id"),
+                    "gcs_uri": doc_metadata.get("gcs_uri"),
+                    "storage_path": doc_metadata.get("storage_path"),
                     "file_size_bytes": len(content_bytes),
                     "saved_path": str(target_path),
-                    "content_type": upload_file.content_type or self.agent._determine_mime_type(target_path)
+                    "content_type": doc_metadata.get("content_type")
                 }
             )
         except Exception as e:
             logger.error(f"Error executing DocumentAgent pipeline: {e}", exc_info=True)
             raise HTTPException(status_code=500, detail=f"Document processing failed: {str(e)}")
+
+# Global singleton
+document_service = DocumentService()
+

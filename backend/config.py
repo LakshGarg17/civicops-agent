@@ -27,6 +27,18 @@ UPLOAD_DIR = Path(os.getenv("UPLOAD_DIR", str(Path(__file__).resolve().parent / 
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 MAX_FILE_SIZE_MB = int(os.getenv("MAX_FILE_SIZE_MB", "10"))
 
+# Google Cloud Project & Firestore Configuration
+GOOGLE_CLOUD_PROJECT = os.getenv("GOOGLE_CLOUD_PROJECT", "")
+FIRESTORE_DATABASE = os.getenv("FIRESTORE_DATABASE", "(default)")
+
+# Google Cloud Storage Configuration
+GCS_BUCKET = os.getenv("GCS_BUCKET", "")
+
+# Cloud Tasks Configuration
+CLOUD_TASKS_QUEUE = os.getenv("CLOUD_TASKS_QUEUE", "civicops-monitoring-queue")
+CLOUD_TASKS_LOCATION = os.getenv("CLOUD_TASKS_LOCATION", "us-central1")
+BACKEND_SERVICE_URL = os.getenv("BACKEND_SERVICE_URL", "http://localhost:8000")
+
 # Google ADK Configuration & Sanity Check
 def initialize_adk() -> dict:
     """
@@ -58,3 +70,4 @@ def initialize_adk() -> dict:
     return adk_status
 
 ADK_STATUS = initialize_adk()
+

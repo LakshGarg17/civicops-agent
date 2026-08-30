@@ -45,3 +45,7 @@ class ResearchService:
                 research_data=research_model,
                 sources_checked=research_model.source_information
             )
+
+# Global singleton
+research_service = ResearchService()
+

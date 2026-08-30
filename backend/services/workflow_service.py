@@ -83,3 +83,7 @@ class WorkflowService:
         Returns all stored cases.
         """
         return list(_IN_MEMORY_CASES.values())
+
+# Global singleton
+workflow_service = WorkflowService()
+
