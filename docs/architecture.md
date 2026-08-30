@@ -1,56 +1,71 @@
-# CivicOps Architecture — Day 1 Foundation
+# CivicOps Architecture
 
-CivicOps is an autonomous civic paperwork assistant designed to help citizens and businesses navigate complex government notices, citations, permits, and tax bills with clear, actionable guidance.
+CivicOps is an autonomous multi-agent civic paperwork assistant built with Google Gemini, FastAPI, Next.js, and Google Cloud Platform.
 
 ---
 
-## 1. System Architecture & Data Flow (Day 1)
+## 10-Second High-Level Architecture Flow
 
-```mermaid
-sequenceDiagram
-    autonumber
-    actor User as Citizen / User
-    participant UI as Frontend (Next.js 14 App Router)
-    participant API as Backend (FastAPI / Uvicorn)
-    participant GS as Gemini Service (google-genai)
-    participant LLM as Google Gemini API
-
-    User->>UI: Selects & uploads government notice (.txt / .pdf)
-    UI->>UI: Transitions to processing state (ProgressBar)
-    UI->>API: POST /upload (multipart/form-data)
-    API->>API: Extracts raw text content & validates payload
-    API->>GS: generate_response(prompt, document_text)
-    GS->>LLM: Dispatches structured prompt + notice payload
-    LLM-->>GS: Returns plain-language breakdown & action steps
-    GS-->>API: Delivers processed explanation
-    API-->>UI: Returns JSON UploadResponse (status, extracted_text, ai_response)
-    UI-->>User: Renders formatted analysis in ResponseCard
+```
+┌────────┐      ┌─────────────────────────┐      ┌───────────────────────────────────┐
+│ CITIZEN│ ───▶ │  NEXT.JS 14 FRONTEND    │ ───▶ │   FASTAPI BACKEND (Cloud Run)     │
+└────────┘      │  (App Router / Tailwind)│      │   • Document, Research & Workflow │
+                └─────────────────────────┘      │   • Server-Gated Human Approval   │
+                                                 │   • Action Agent & Demo Gateway   │
+                                                 └─────────────────┬─────────────────┘
+                                                                   │
+                                     ┌─────────────────────────────┼─────────────────────────────┐
+                                     │                             │                             │
+                                     ▼                             ▼                             ▼
+                          ┌──────────────────────┐    ┌─────────────────────────┐   ┌─────────────────────────┐
+                          │ GOOGLE GEMINI 2.0    │    │ GOOGLE CLOUD STORAGE    │   │ CLOUD FIRESTORE         │
+                          │ • Multimodal OCR     │    │ • Notice PDF / PNG      │   │ • Cases & Workflows     │
+                          │ • Grounded Research  │    │ • Evidence Attachments  │   │ • Status Updates Audit  │
+                          │ • Agentic Reasoning  │    │   (gs://... buckets)    │   │ • Documents & Users     │
+                          └──────────────────────┘    └─────────────────────────┘   └────────────┬────────────┘
+                                                                                                 ▲
+                                                                                                 │
+                                                                                    ┌────────────┴────────────┐
+                                                                                    │ CLOUD TASKS / ASYNC     │
+                                                                                    │ POST /monitor/{case_id} │
+                                                                                    │                         │
+                                                                                    │ [ MONITORING AGENT ]    │
+                                                                                    │ • Status Polling        │
+                                                                                    │ • Severity Reasoning    │
+                                                                                    │ • Dynamic Task Creation │
+                                                                                    └─────────────────────────┘
 ```
 
 ---
 
-## 2. Layer Responsibilities
+## The 5 Autonomous Civic Agents
 
-### Frontend Layer (`frontend/`)
-- **Purpose**: Provides an intuitive, accessible interface featuring drag-and-drop file ingestion, real-time progress indicators, and structured card presentations for complex information.
-- **Day 1 Scope**: Single-page flow connecting `UploadCard`, `ProgressBar`, and `ResponseCard` with sample case previews.
-
-### API & Ingestion Layer (`backend/`)
-- **Purpose**: Handles multi-part file ingestion, standardizes text extraction across document formats, enforces CORS policies, and exposes schema-validated REST endpoints (`/upload`, `/health`).
-- **Day 1 Scope**: Synchronous text extraction for `.txt` and `.pdf` files, routing directly to `GeminiService`.
-
-### AI & LLM Service Layer (`backend/services/gemini_service.py`)
-- **Purpose**: Wraps Google Generative AI APIs (`gemini-2.0-flash`), encapsulating prompt engineering, temperature/token settings, and graceful error fallbacks.
-- **Day 1 Scope**: Translates bureaucratic terminology into plain English summaries with explicit deadlines, dollar figures, and actionable checklists.
+| Agent | Responsibilities | Technologies |
+| :--- | :--- | :--- |
+| **1. Document Agent** | Ingests notices (PDF, JPG, PNG), performs multimodal extraction into structured Pydantic schemas with anti-hallucination defaults. | Gemini 2.0 Flash, Cloud Storage, Pydantic |
+| **2. Research Agent** | Grounded lookup of statutory codes, administrative boards, submission channels, and procedural rationale on `.gov` portals. | Grounded Search, Gemini 2.0 Flash |
+| **3. Workflow Agent** | Diffs required proofs against citizen inventory; sequences numbered, chronological action plan. | Pydantic, Firestore Workflows |
+| **4. Action Agent** | Prepares formal administrative petition packages with strict anti-fabrication proof checks; gates execution behind server-enforced human authorization. | FastAPI Security Gate, Jinja2 / String Templates |
+| **5. Monitoring Agent** | Asynchronously polls demo portal, detects agency determinations, analyzes severity, and injects follow-up tasks into the live workflow. | Cloud Tasks, Firestore, Gemini Reasoning |
 
 ---
 
-## 3. Roadmap for Day 2+ (Multi-Agent Architecture)
+## Persistence & Storage Layering
 
-In upcoming milestones, the direct single-prompt Gemini flow will transition into an autonomous multi-agent system powered by Google ADK (Agent Development Kit):
+Agents never interact with databases directly:
+```
+[ Agent Layer ] ──▶ [ Domain Service Layer ] ──▶ [ Firestore / Storage Service ] ──▶ [ Google Cloud Services ]
+```
+- `DocumentAgent` → `DocumentService` → `StorageService` (`GCS`) + `FirestoreService` (`Firestore`)
+- `ResearchAgent` → `ResearchService` → `FirestoreService`
+- `WorkflowAgent` → `WorkflowService` → `FirestoreService`
+- `ActionAgent` → `CaseService` → `FirestoreService`
+- `MonitoringAgent` → `CaseService` → `FirestoreService`
 
-1. **Document Agent (`document_agent.py`)**: Multi-modal document parser with OCR, layout understanding, and agency identification.
-2. **Research Agent (`research_agent.py`)**: Real-time legal and regulatory search across municipal codes, statutes, and fee schedules.
-3. **Workflow Agent (`workflow_agent.py`)**: Generates step-by-step resolution dependency graphs (deadlines, prerequisites, forms).
-4. **Action Agent (`action_agent.py`)**: Drafts customized appeal letters, fills out standard PDF forms, and prepares submission packets.
-5. **Monitoring Agent (`monitoring_agent.py`)**: Tracks filing status, alerts users before critical statutory deadlines, and confirms resolution.
+---
+
+## Security & Human-in-the-Loop Governance
+
+1. **Server-Enforced Authorization Gate**: Submissions without recorded human approval token (`ApprovalRecord`) are rejected with `HTTP 403 Forbidden`.
+2. **Strict Anti-Fabrication**: Action Agent only marks documents attached if confirmed in citizen inventory; unattached requirements are flagged as missing.
+3. **Demo Sandbox Isolation**: All external filings execute against the transparent CivicOps Demo Gateway, issuing deterministic receipt tokens without impacting production government databases.
