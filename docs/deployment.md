@@ -128,14 +128,14 @@ curl -X GET https://civicops-backend-xyz.a.run.app/health
 ## 4. Deploying Frontend to Vercel
 
 1. **Import Git Repository** into [Vercel](https://vercel.com).
-2. **Project Configuration**:
-   - **Framework Preset**: Next.js
-   - **Root Directory**: `frontend` (or leave as root if using repo-root `vercel.json`)
-   - **Build Command**: `next build`
-   - **Output Directory**: `.next`
+2. **Project Settings (Critical)**:
+   - **Root Directory**: Click **Edit** and select/type `frontend` (where `package.json` lives).
+   - **Framework Preset**: Next.js (Vercel will auto-detect Next.js 14 once Root Directory is set to `frontend`).
+   - Leave Build Command & Output Directory default (auto-detected).
 3. **Configure Environment Variables**:
-   - `NEXT_PUBLIC_API_URL`: `https://civicops-backend-xyz.a.run.app` (your Cloud Run service URL)
+   - `NEXT_PUBLIC_API_URL`: `https://civicops-backend-xyz.a.run.app` (your Cloud Run backend service URL).
 4. Click **Deploy**.
+
 
 ---
 
