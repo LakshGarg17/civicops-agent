@@ -19,8 +19,15 @@ GEMINI_API_KEY = os.getenv("GEMINI_API_KEY", "")
 GEMINI_MODEL = os.getenv("GEMINI_MODEL", "gemini-2.0-flash")
 
 # Server Configuration
-PORT = int(os.getenv("PORT", "8000"))
+PORT = int(os.getenv("PORT", "8080"))
 HOST = os.getenv("HOST", "0.0.0.0")
+
+# CORS Origins Configuration (Supports comma-separated URLs or wildcard)
+ALLOWED_ORIGINS_RAW = os.getenv("ALLOWED_ORIGINS", "*")
+if ALLOWED_ORIGINS_RAW == "*" or not ALLOWED_ORIGINS_RAW:
+    ALLOWED_ORIGINS = ["*"]
+else:
+    ALLOWED_ORIGINS = [orig.strip() for orig in ALLOWED_ORIGINS_RAW.split(",") if orig.strip()]
 
 # Storage Configuration (Local Disk Storage)
 UPLOAD_DIR = Path(os.getenv("UPLOAD_DIR", str(Path(__file__).resolve().parent / "uploads")))
@@ -38,6 +45,7 @@ GCS_BUCKET = os.getenv("GCS_BUCKET", "")
 CLOUD_TASKS_QUEUE = os.getenv("CLOUD_TASKS_QUEUE", "civicops-monitoring-queue")
 CLOUD_TASKS_LOCATION = os.getenv("CLOUD_TASKS_LOCATION", "us-central1")
 BACKEND_SERVICE_URL = os.getenv("BACKEND_SERVICE_URL", "http://localhost:8000")
+
 
 # Google ADK Configuration & Sanity Check
 def initialize_adk() -> dict:

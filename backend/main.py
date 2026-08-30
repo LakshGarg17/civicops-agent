@@ -10,7 +10,8 @@ from backend.config import (
     ADK_STATUS,
     GOOGLE_CLOUD_PROJECT,
     GCS_BUCKET,
-    CLOUD_TASKS_QUEUE
+    CLOUD_TASKS_QUEUE,
+    ALLOWED_ORIGINS
 )
 from backend.models.schemas import UploadResponse, ErrorResponse, HealthResponse
 from backend.models.notice import NoticeStructuredData
@@ -42,28 +43,30 @@ logger = logging.getLogger("civicops.main")
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
-    logger.info("Starting CivicOps Backend Service (Day 5: Production + Autonomous Monitoring)...")
+    logger.info("Starting CivicOps Backend Service (Cloud Run Production Mode)...")
     logger.info(f"Gemini Model: {GEMINI_MODEL}")
     logger.info(f"Firestore Connected: {firestore_service.is_connected} (Project: {GOOGLE_CLOUD_PROJECT or 'local_fallback'})")
     logger.info(f"Cloud Storage Bucket: {GCS_BUCKET or 'local_disk_mode'}")
+    logger.info(f"Allowed CORS Origins: {ALLOWED_ORIGINS}")
     yield
     logger.info("Shutting down CivicOps Backend Service...")
 
 app = FastAPI(
     title="CivicOps API",
-    description="Autonomous civic paperwork assistant API (Day 5: Production & Monitoring Agent)",
-    version="0.5.0",
+    description="Autonomous civic paperwork assistant API (Cloud Run Deployment)",
+    version="0.6.0",
     lifespan=lifespan
 )
 
-# Enable CORS for frontend development and cloud deployment
+# Enable CORS for frontend development and cloud deployment (Vercel & Localhost)
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=ALLOWED_ORIGINS,
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
 
 @app.get("/health", response_model=HealthResponse)
 async def health_check():
