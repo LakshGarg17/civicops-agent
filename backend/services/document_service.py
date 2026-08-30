@@ -140,9 +140,15 @@ class DocumentService:
                     "content_type": doc_metadata.get("content_type")
                 }
             )
+        except HTTPException:
+            raise
         except Exception as e:
             logger.error(f"Error executing DocumentAgent pipeline: {e}", exc_info=True)
-            raise HTTPException(status_code=500, detail=f"Document processing failed: {str(e)}")
+            raise HTTPException(
+                status_code=422,
+                detail="Unable to analyze this document. Please try: a clearer scan, a PDF with selectable text, or a supported image format."
+            )
+
 
 # Global singleton
 document_service = DocumentService()

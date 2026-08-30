@@ -35,6 +35,7 @@ DEFAULT_RESEARCH_FALLBACK: Dict[str, Any] = {
     "deadline_information": "Not found",
     "fees": "Not found",
     "additional_requirements": [],
+    "rationale": "Official procedure identified based on notice classification, issuing authority, and governing administrative code.",
     "source_information": ["Official Municipal Code and Administrative Guidelines (.gov)"]
 }
 
@@ -47,10 +48,11 @@ Given the structured notice information and grounded search context:
 4. Identify the submission method.
 5. Identify important deadlines and fees.
 6. Determine the sequence of actions.
-7. Use authoritative sources whenever possible.
-8. NEVER invent requirements.
-9. Clearly mark information that could not be verified (use 'Not found' or 'Unverified' — do not hallucinate a plausible-sounding value).
-10. Return structured JSON matching the required schema.
+7. Provide a concise 'rationale' explaining why this procedure is legally applicable to the notice.
+8. Use authoritative sources whenever possible.
+9. NEVER invent requirements.
+10. Clearly mark information that could not be verified (use 'Not found' or 'Unverified' — do not hallucinate a plausible-sounding value).
+11. Return structured JSON matching the required schema.
 
 REQUIRED OUTPUT JSON SCHEMA:
 {
@@ -62,8 +64,10 @@ REQUIRED OUTPUT JSON SCHEMA:
   "deadline_information": "Specific statutory deadline or 'Not found' / 'Unverified'",
   "fees": "Filing fee or 'Not found' / 'Unverified'",
   "additional_requirements": ["Requirement 1"],
+  "rationale": "Clear 1-2 sentence explanation of why this procedure applies to the notice",
   "source_information": ["Source 1 (.gov)", "Source 2"]
 }
+
 
 CRITICAL ANTI-HALLUCINATION RULES & EXAMPLES:
 - If a deadline or fee cannot be verified from the notice or grounded authoritative source, output "Not found" or "Unverified".
@@ -172,6 +176,10 @@ class ResearchAgent:
             else:
                 result["additional_requirements"] = []
 
+            # Rationale explanation
+            rationale_val = data.get("rationale")
+            result["rationale"] = str(rationale_val).strip() if rationale_val else DEFAULT_RESEARCH_FALLBACK["rationale"]
+
             # Source information
             sources = data.get("source_information")
             if isinstance(sources, list):
@@ -236,7 +244,7 @@ GROUNDED GOVERNMENT SOURCES SEARCH CONTEXT:
 - Grounded Fees: {grounded_data.get('fees', 'Not found')}
 - Authoritative Sources Consulted: {json.dumps(sources_checked)}
 
-Determine the precise civic procedure, authoritative submission method, all required documents, chronological steps, deadline rules, and fees. Return ONLY the strict JSON object.
+Determine the precise civic procedure, authoritative submission method, all required documents, chronological steps, deadline rules, fees, and clear rationale. Return ONLY the strict JSON object.
 """
 
         try:
@@ -292,6 +300,15 @@ Determine the precise civic procedure, authoritative submission method, all requ
             if m_doc and m_doc.lower() != "not found" and m_doc not in req_docs:
                 req_docs.append(m_doc)
 
+        notice_issue = notice_data.get("issue", "")
+        notice_type = notice_data.get("notice_type", "civic notice")
+        rationale_text = (
+            f"The received {notice_type} specifies: '{notice_issue}'. "
+            f"Applicable statutory guidelines require filing an administrative dispute/petition with the {grounded_data.get('authority', 'review authority')}."
+            if notice_issue and notice_issue.lower() != "not found"
+            else f"Official procedure identified based on {notice_type} requirements under governing municipal code."
+        )
+
         result = {
             "procedure_name": grounded_data.get("procedure_name", DEFAULT_RESEARCH_FALLBACK["procedure_name"]),
             "authority": grounded_data.get("authority", notice_data.get("issuing_authority", DEFAULT_RESEARCH_FALLBACK["authority"])),
@@ -301,8 +318,10 @@ Determine the precise civic procedure, authoritative submission method, all requ
             "deadline_information": final_deadline,
             "fees": grounded_data.get("fees", "Not found"),
             "additional_requirements": grounded_data.get("additional_requirements", []),
+            "rationale": rationale_text,
             "source_information": grounded_data.get("source_information", sources_checked or DEFAULT_RESEARCH_FALLBACK["source_information"])
         }
 
         validated = ProcedureResearchData(**result)
         return validated.model_dump()
+

@@ -39,12 +39,14 @@ class ResearchService:
             logger.error(f"ResearchService failed to execute research: {e}", exc_info=True)
             # Defensive fallback
             fallback_dict = self.agent.clean_and_parse_json("")
+            fallback_dict["rationale"] = "CivicOps couldn't verify a specific procedure from authoritative sources. Standard administrative notice guidelines apply; no unverified requirement has been added."
             research_model = ProcedureResearchData(**fallback_dict)
             return ResearchResponse(
                 status="success",
                 research_data=research_model,
                 sources_checked=research_model.source_information
             )
+
 
 # Global singleton
 research_service = ResearchService()

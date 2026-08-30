@@ -15,7 +15,12 @@ class ProcedureResearchData(BaseModel):
     deadline_information: str = Field(default="Not found", description="Statutory deadlines, windows for response, or appeal time limits")
     fees: str = Field(default="Not found", description="Applicable filing fees, penalties, or fee waivers")
     additional_requirements: List[str] = Field(default_factory=list, description="Special rules, notarization, certified mail requirements, or conditions")
+    rationale: str = Field(
+        default="Applicable administrative procedure identified based on notice classification, issuing authority, and governing municipal/county civic code.",
+        description="Clear plain-language explanation of why this procedure is legally applicable to the notice"
+    )
     source_information: List[str] = Field(default_factory=list, description="Authoritative municipal codes, portal URLs, or government sources consulted")
+
 
 class ResearchRequest(BaseModel):
     """Input payload for /research endpoint."""
