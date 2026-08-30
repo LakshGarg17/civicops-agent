@@ -9,12 +9,13 @@ import {
   Hash, 
   Globe, 
   Sparkles, 
-  ArrowRight,
-  FileText,
-  Activity,
-  AlertTriangle,
-  Bell,
-  Check
+  ArrowRight, 
+  FileText, 
+  Activity, 
+  AlertTriangle, 
+  Bell, 
+  Check,
+  Zap
 } from "lucide-react";
 
 export interface SubmissionRecord {
@@ -46,6 +47,12 @@ interface CaseStatusCardProps {
   title?: string;
   deadline?: string;
   notification?: CaseNotification | null;
+  detectedChange?: {
+    previousStatus: string;
+    currentStatus: string;
+    summary: string;
+    nextAction: string;
+  };
   onViewTimeline?: () => void;
   onViewRequiredAction?: () => void;
   onAcknowledgeNotification?: () => void;
@@ -58,6 +65,7 @@ export const CaseStatusCard: React.FC<CaseStatusCardProps> = ({
   title = "Property Tax Correction",
   deadline = "15 September 2026",
   notification,
+  detectedChange,
   onViewTimeline,
   onViewRequiredAction,
   onAcknowledgeNotification
@@ -107,8 +115,51 @@ export const CaseStatusCard: React.FC<CaseStatusCardProps> = ({
 
   return (
     <div className="w-full bg-white rounded-3xl border border-slate-200 shadow-xl overflow-hidden space-y-6 p-6 sm:p-8 transition-all">
+      {/* Prominent Status Change Callout (Monitoring Agent Detection) */}
+      {detectedChange && (
+        <div className="p-5 rounded-2xl bg-amber-500/10 border-2 border-amber-500/80 text-amber-950 shadow-lg space-y-3">
+          <div className="flex items-center gap-2">
+            <Zap className="w-5 h-5 text-amber-600 fill-amber-500 animate-bounce" />
+            <h4 className="text-xs font-extrabold uppercase tracking-wider text-amber-900">
+              ⚡ STATUS CHANGE DETECTED (Monitoring Agent)
+            </h4>
+          </div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs bg-white/80 p-3 rounded-xl border border-amber-300 font-medium">
+            <div>
+              <span className="text-slate-500 block text-[10px] uppercase font-bold">Previous Status:</span>
+              <span className="font-semibold text-slate-800 capitalize">{detectedChange.previousStatus.replace(/_/g, " ")}</span>
+            </div>
+            <div>
+              <span className="text-amber-800 block text-[10px] uppercase font-bold">Current Status:</span>
+              <span className="font-extrabold text-amber-900 capitalize">{detectedChange.currentStatus.replace(/_/g, " ")}</span>
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <span className="text-[10px] font-extrabold uppercase tracking-wider text-amber-800 block">
+              NEW ACTION REQUIRED
+            </span>
+            <p className="text-xs text-amber-950 font-bold">{detectedChange.nextAction}</p>
+            <p className="text-xs text-slate-700">{detectedChange.summary}</p>
+          </div>
+
+          {onViewRequiredAction && (
+            <div className="pt-1">
+              <button
+                onClick={onViewRequiredAction}
+                className="inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-amber-600 hover:bg-amber-700 text-white font-extrabold text-xs shadow-md transition-all"
+              >
+                <span>View Required Action</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </button>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Active In-App Notification Alert Banner */}
-      {notification && notification.unread && (
+      {notification && notification.unread && !detectedChange && (
         <div className="p-4 sm:p-5 rounded-2xl bg-amber-50 border-2 border-amber-300 text-amber-900 shadow-md space-y-3">
           <div className="flex items-start justify-between gap-3">
             <div className="flex items-center gap-2.5">
@@ -148,6 +199,24 @@ export const CaseStatusCard: React.FC<CaseStatusCardProps> = ({
               </button>
             )}
           </div>
+        </div>
+      )}
+
+      {/* Confirmed Application Submission Header */}
+      {submission && (
+        <div className="p-4 rounded-2xl bg-emerald-50 border border-emerald-200 flex items-center justify-between gap-3 text-emerald-900">
+          <div className="flex items-center gap-2.5">
+            <CheckCircle2 className="w-5 h-5 text-emerald-600 flex-shrink-0" />
+            <div>
+              <p className="text-xs font-extrabold text-emerald-950">✓ Application Submitted</p>
+              <p className="text-[11px] text-emerald-800">
+                Case ID: <span className="font-mono font-bold">{caseId}</span> • Status: <span className="font-bold capitalize">{status.replace(/_/g, " ")}</span>
+              </p>
+            </div>
+          </div>
+          <span className="text-[10px] font-bold px-2.5 py-1 rounded-md bg-emerald-100 text-emerald-800 border border-emerald-300 font-mono">
+            {submission.confirmation_number}
+          </span>
         </div>
       )}
 

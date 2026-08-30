@@ -1,11 +1,11 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { UploadCard } from "@/components/UploadCard";
 import { ProgressBar } from "@/components/ProgressBar";
 import { NoticeSummaryCard, NoticeStructuredData } from "@/components/NoticeSummaryCard";
 import { DocumentChecklist } from "@/components/DocumentChecklist";
-import { AgentActivity } from "@/components/AgentActivity";
+import { AgentActivity, AgentActivityState } from "@/components/AgentActivity";
 import { ActionPlanCard, WorkflowCase, ProcedureResearchData } from "@/components/ActionPlanCard";
 import { ApplicationReviewCard, ApplicationDocument } from "@/components/ApplicationReviewCard";
 import { ApprovalPrompt } from "@/components/ApprovalPrompt";
@@ -16,24 +16,26 @@ import {
   FileText, 
   Clock, 
   ArrowRight, 
-  AlertCircle,
-  Sparkles,
-  FileSpreadsheet,
-  CheckCircle,
-  FileCheck,
-  Building,
-  Car,
-  Layers,
-  ArrowLeft,
-  RotateCcw,
-  ShieldCheck,
-  FolderLock,
-  ListOrdered,
-  Activity,
-  Send,
-  Lock,
-  Cloud,
-  Database
+  AlertCircle, 
+  Sparkles, 
+  FileSpreadsheet, 
+  CheckCircle, 
+  FileCheck, 
+  Building, 
+  Car, 
+  Layers, 
+  ArrowLeft, 
+  RotateCcw, 
+  ShieldCheck, 
+  FolderLock, 
+  ListOrdered, 
+  Activity, 
+  Send, 
+  Lock, 
+  Cloud, 
+  Database,
+  Search,
+  CheckCircle2
 } from "lucide-react";
 
 interface UploadResult {
@@ -75,7 +77,7 @@ export default function Home() {
   const [isUploading, setIsUploading] = useState(false);
   const [uploadResult, setUploadResult] = useState<UploadResult | null>(null);
   
-  // Multi-agent workflow states
+  // Multi-agent workflow execution states
   const [isGeneratingWorkflow, setIsGeneratingWorkflow] = useState(false);
   const [isPreparingApplication, setIsPreparingApplication] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -88,6 +90,18 @@ export default function Home() {
   const [detectedChangeCallout, setDetectedChangeCallout] = useState<any>(null);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
+
+  // Derive agent activity states strictly from backend completion
+  const agentActivityState: AgentActivityState = {
+    documentAnalyzed: !!uploadResult?.notice_data,
+    procedureIdentified: !!activeCase?.research?.procedure_name,
+    actionPlanGenerated: !!activeCase?.workflow?.tasks?.length,
+    applicationPrepared: !!activeCase?.application?.to,
+    documentsVerified: !!activeCase?.workflow?.matched_documents?.length || !!activeCase?.workflow?.tasks?.length,
+    humanApproved: !!activeCase?.approval_record,
+    applicationSubmitted: !!activeCase?.submission?.confirmation_number,
+    monitoringActive: activeCase?.status === "submitted" || activeCase?.status === "under_review" || activeCase?.status === "additional_information_required"
+  };
 
   // Step 1: Upload Notice to Cloud Storage & Firestore
   const handleFileUpload = async (file: File) => {
@@ -117,7 +131,7 @@ export default function Home() {
     } catch (err: any) {
       console.error("Upload error:", err);
       setErrorMessage(
-        err.message || "Failed to communicate with CivicOps backend. Please ensure the server is running."
+        err.message || "Unable to analyze this document. Please try: a clearer scan, a PDF with selectable text, or a supported image format."
       );
     } finally {
       setIsUploading(false);
@@ -146,8 +160,6 @@ export default function Home() {
 
       const researchJson = await researchRes.json();
       const resData: ProcedureResearchData = researchJson.research_data;
-
-      await new Promise((resolve) => setTimeout(resolve, 500));
 
       // 2. Call Workflow Agent Endpoint (/workflow)
       const workflowRes = await fetch(`${API_URL}/workflow`, {
@@ -178,7 +190,7 @@ export default function Home() {
     } catch (err: any) {
       console.error("Workflow error:", err);
       setErrorMessage(
-        err.message || "Failed to generate personalized action plan. Please check server."
+        err.message || "CivicOps couldn't verify the required procedure from authoritative sources. No unverified requirement has been added."
       );
     } finally {
       setIsGeneratingWorkflow(false);
@@ -329,7 +341,6 @@ export default function Home() {
   const handleDemoStatusChanged = async (newStatus: string) => {
     if (!activeCase) return;
 
-    // Refresh case details from Firestore
     try {
       const caseRes = await fetch(`${API_URL}/cases/${activeCase.case_id}`);
       if (caseRes.ok) {
@@ -393,18 +404,42 @@ export default function Home() {
 
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 sm:py-12 space-y-10">
-      {/* Hero Header */}
+      {/* Home Page Polish (Clear, direct copy) */}
       <div className="text-center space-y-3">
-        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-semibold text-civic-800 bg-civic-50 border border-civic-200 shadow-2xs">
-          <Database className="w-3.5 h-3.5 text-civic-600" />
-          <span>Day 5: Production + Autonomous Monitoring (Firestore & Cloud Storage)</span>
-        </div>
-        <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900">
+        <h1 className="text-4xl sm:text-6xl font-extrabold tracking-tight text-slate-900">
           CivicOps
         </h1>
-        <p className="text-lg sm:text-xl text-slate-600 font-normal max-w-2xl mx-auto">
-          Autonomous civic paperwork assistant: Multimodal analysis, grounded research, action preparation, persistent cloud storage, and continuous monitoring.
+        <p className="text-xl sm:text-2xl font-bold text-civic-700">
+          Turn government paperwork into action.
         </p>
+        <p className="text-sm sm:text-base text-slate-600 font-normal max-w-2xl mx-auto leading-relaxed">
+          Upload a government notice. CivicOps understands what it means, researches what you need to do, prepares the next steps, and keeps track of your case.
+        </p>
+
+        {/* 4-step strip: Understand → Plan → Act → Track */}
+        <div className="pt-3 pb-2">
+          <div className="inline-flex flex-wrap items-center justify-center gap-2 sm:gap-3 bg-slate-50 border border-slate-200/90 px-4 py-2 rounded-2xl text-xs font-bold text-slate-700 shadow-2xs">
+            <span className="flex items-center gap-1 text-slate-900 font-extrabold">
+              <span className="h-5 w-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px]">1</span>
+              Understand
+            </span>
+            <span className="text-slate-300">→</span>
+            <span className="flex items-center gap-1 text-slate-900 font-extrabold">
+              <span className="h-5 w-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px]">2</span>
+              Plan
+            </span>
+            <span className="text-slate-300">→</span>
+            <span className="flex items-center gap-1 text-slate-900 font-extrabold">
+              <span className="h-5 w-5 rounded-full bg-slate-900 text-white flex items-center justify-center text-[10px]">3</span>
+              Act
+            </span>
+            <span className="text-slate-300">→</span>
+            <span className="flex items-center gap-1 text-civic-700 font-extrabold">
+              <span className="h-5 w-5 rounded-full bg-civic-600 text-white flex items-center justify-center text-[10px]">4</span>
+              Track
+            </span>
+          </div>
+        </div>
       </div>
 
       {/* Main Interactive Work Area */}
@@ -413,7 +448,7 @@ export default function Home() {
           <div className="p-4 bg-red-50 border border-red-200 rounded-2xl flex items-start gap-3 text-sm text-red-700">
             <AlertCircle className="w-5 h-5 text-red-500 flex-shrink-0 mt-0.5" />
             <div className="flex-1">
-              <p className="font-semibold">Processing Error</p>
+              <p className="font-semibold">Notice Processing Note</p>
               <p className="text-red-600 mt-0.5">{errorMessage}</p>
               <button
                 onClick={() => setErrorMessage(null)}
@@ -425,9 +460,24 @@ export default function Home() {
           </div>
         )}
 
-        {/* State 1: Uploading Notice */}
+        {/* State 1: Uploading Notice with staged activity */}
         {isUploading && currentFile ? (
-          <ProgressBar filename={currentFile.name} />
+          <div className="space-y-4">
+            <ProgressBar filename={currentFile.name} />
+            <AgentActivity
+              activityState={{
+                documentAnalyzed: false,
+                procedureIdentified: false,
+                actionPlanGenerated: false,
+                applicationPrepared: false,
+                documentsVerified: false,
+                humanApproved: false,
+                applicationSubmitted: false,
+                monitoringActive: false
+              }}
+              isLoading={true}
+            />
+          </div>
         ) : uploadResult && currentFile ? (
           <div className="space-y-8">
             {/* Top Navigation Action Bar */}
@@ -437,7 +487,7 @@ export default function Home() {
                 className="inline-flex items-center gap-2 text-xs font-semibold text-slate-600 hover:text-slate-900 bg-slate-50 hover:bg-slate-100 border border-slate-200 px-3.5 py-2 rounded-xl transition-all shadow-2xs"
               >
                 <RotateCcw className="w-3.5 h-3.5" />
-                Start New Notice
+                Upload Another Notice
               </button>
 
               {activeCase && (
@@ -467,13 +517,14 @@ export default function Home() {
                 title={activeCase.title || `${activeCase.notice.notice_type} Correction`}
                 deadline={activeCase.deadline || activeCase.notice.deadline}
                 notification={activeCase.unread_notification}
+                detectedChange={detectedChangeCallout}
                 onViewTimeline={() => setActiveTab("timeline")}
                 onViewRequiredAction={() => setActiveTab("action_plan")}
                 onAcknowledgeNotification={handleAcknowledgeNotification}
               />
             )}
 
-            {/* Demo Status Gateway Controller (When submitted or active) */}
+            {/* Demo Status Gateway Controller (For Hackathon Presentations) */}
             {activeCase && (
               <DemoStatusController
                 caseId={activeCase.case_id}
@@ -543,14 +594,13 @@ export default function Home() {
               </div>
             )}
 
-            {/* Live Agent Activity Animation */}
-            {(isGeneratingWorkflow || detectedChangeCallout) && (
-              <AgentActivity
-                sourcesChecked={activeCase?.research?.source_information || []}
-                isComplete={!isGeneratingWorkflow && !!activeCase}
-                detectedChange={detectedChangeCallout}
-              />
-            )}
+            {/* Agent Activity Screen */}
+            <AgentActivity
+              activityState={agentActivityState}
+              sourcesChecked={activeCase?.research?.source_information || []}
+              isLoading={isGeneratingWorkflow}
+              detectedChange={detectedChangeCallout}
+            />
 
             {/* TAB 1: Action Plan & Checklist */}
             {(!activeCase || activeTab === "action_plan") && (
@@ -712,7 +762,7 @@ export default function Home() {
         </div>
       )}
 
-      {/* Multi-Agent Architecture Explanation */}
+      {/* 5-Agent Architecture Footer Summary */}
       <div className="border-t border-slate-200/80 pt-8 space-y-4">
         <div className="flex items-center justify-between">
           <div>
@@ -720,7 +770,7 @@ export default function Home() {
             <p className="text-xs text-slate-500">Autonomous preparation with human-in-the-loop governance and continuous monitoring</p>
           </div>
           <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-            Day 5 Production System
+            Day 6 Production Ready
           </span>
         </div>
 
