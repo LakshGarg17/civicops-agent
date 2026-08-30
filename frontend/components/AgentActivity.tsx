@@ -11,27 +11,38 @@ import {
   Sparkles, 
   ShieldCheck,
   Layers,
-  Cpu
+  Cpu,
+  Zap,
+  Activity,
+  AlertTriangle
 } from "lucide-react";
 
 interface AgentActivityProps {
-  currentStage?: number; // 0 to 6
+  currentStage?: number;
   sourcesChecked?: string[];
   isComplete?: boolean;
+  detectedChange?: {
+    previousStatus: string;
+    currentStatus: string;
+    summary: string;
+    nextAction: string;
+  };
 }
 
 const STAGES = [
   { id: 1, label: "Document analyzed & citations extracted", agent: "Document Agent", icon: "doc" },
-  { id: 2, label: "Notice type & jurisdiction identified", agent: "Document Agent", icon: "doc" },
+  { id: 2, label: "Notice type & issuing authority identified", agent: "Document Agent", icon: "doc" },
   { id: 3, label: "Querying official .gov portals & civic codes", agent: "Research Agent", icon: "research" },
   { id: 4, label: "Government procedure & requirements verified", agent: "Research Agent", icon: "research" },
   { id: 5, label: "Diffing required vs available citizen documents", agent: "Workflow Agent", icon: "workflow" },
-  { id: 6, label: "Personalized Action Plan & tasks sequenced", agent: "Workflow Agent", icon: "workflow" }
+  { id: 6, label: "Personalized Action Plan & tasks sequenced", agent: "Workflow Agent", icon: "workflow" },
+  { id: 7, label: "Autonomous case monitoring active in Firestore", agent: "Monitoring Agent", icon: "monitoring" }
 ];
 
 export const AgentActivity: React.FC<AgentActivityProps> = ({
   sourcesChecked = [],
-  isComplete = false
+  isComplete = false,
+  detectedChange
 }) => {
   const [activeStep, setActiveStep] = useState(1);
 
@@ -48,13 +59,13 @@ export const AgentActivity: React.FC<AgentActivityProps> = ({
         }
         return prev;
       });
-    }, 700);
+    }, 600);
 
     return () => clearInterval(interval);
   }, [isComplete]);
 
   return (
-    <div className="w-full bg-slate-900 text-slate-100 rounded-2xl border border-slate-800 shadow-xl p-6 sm:p-7 space-y-6 overflow-hidden relative">
+    <div className="w-full bg-slate-900 text-slate-100 rounded-3xl border border-slate-800 shadow-2xl p-6 sm:p-7 space-y-6 overflow-hidden relative">
       {/* Decorative background glow */}
       <div className="absolute -top-24 -right-24 w-60 h-60 bg-civic-500/10 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-24 -left-24 w-60 h-60 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
@@ -73,7 +84,7 @@ export const AgentActivity: React.FC<AgentActivityProps> = ({
               </span>
             </div>
             <p className="text-xs text-slate-400 mt-0.5">
-              Autonomous multi-agent research and workflow generation
+              Autonomous multi-agent research, action synthesis, and continuous monitoring
             </p>
           </div>
         </div>
@@ -85,10 +96,34 @@ export const AgentActivity: React.FC<AgentActivityProps> = ({
             <span className={`relative inline-flex rounded-full h-2 w-2 ${isComplete ? "bg-emerald-500" : "bg-civic-500"}`} />
           </span>
           <span className="font-semibold text-slate-300">
-            {isComplete ? "Action Plan Ready" : "Agents Working..."}
+            {isComplete ? "Autonomous Monitoring Active" : "Agents Working..."}
           </span>
         </div>
       </div>
+
+      {/* Detected Change Expanded Callout */}
+      {detectedChange && (
+        <div className="p-4 rounded-2xl bg-amber-950/60 border border-amber-500/50 text-amber-100 space-y-2 relative z-10 shadow-lg shadow-amber-950/30">
+          <div className="flex items-center gap-2">
+            <Zap className="w-4 h-4 text-amber-400 fill-amber-400 animate-bounce" />
+            <span className="text-xs font-extrabold uppercase tracking-wider text-amber-300">
+              ⚡ Monitoring Agent: Status Change Detected
+            </span>
+          </div>
+          <div className="text-xs space-y-1">
+            <p className="text-slate-200">
+              <span className="text-slate-400">Previous:</span> <span className="font-semibold capitalize">{detectedChange.previousStatus.replace(/_/g, " ")}</span>
+              {" "}→{" "}
+              <span className="text-slate-400">Current:</span> <span className="font-bold text-amber-300 capitalize">{detectedChange.currentStatus.replace(/_/g, " ")}</span>
+            </p>
+            <p className="text-amber-200/90">{detectedChange.summary}</p>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md bg-amber-900/80 text-amber-200 font-semibold text-[11px] border border-amber-700">
+              <span>New Task Created:</span>
+              <span className="text-white font-bold">{detectedChange.nextAction}</span>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Stage Progression List */}
       <div className="space-y-3 relative z-10">
@@ -96,7 +131,6 @@ export const AgentActivity: React.FC<AgentActivityProps> = ({
           const stepNumber = idx + 1;
           const isFinished = stepNumber < activeStep || isComplete;
           const isCurrent = stepNumber === activeStep && !isComplete;
-          const isPending = stepNumber > activeStep && !isComplete;
 
           return (
             <div
@@ -133,7 +167,9 @@ export const AgentActivity: React.FC<AgentActivityProps> = ({
                       ? "bg-blue-950 text-blue-300 border border-blue-800/60"
                       : stage.agent === "Research Agent"
                       ? "bg-purple-950 text-purple-300 border border-purple-800/60"
-                      : "bg-amber-950 text-amber-300 border border-amber-800/60"
+                      : stage.agent === "Workflow Agent"
+                      ? "bg-amber-950 text-amber-300 border border-amber-800/60"
+                      : "bg-sky-950 text-sky-300 border border-sky-800/60"
                   }`}
                 >
                   {stage.agent}

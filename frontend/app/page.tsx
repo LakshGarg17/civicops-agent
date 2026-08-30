@@ -9,8 +9,9 @@ import { AgentActivity } from "@/components/AgentActivity";
 import { ActionPlanCard, WorkflowCase, ProcedureResearchData } from "@/components/ActionPlanCard";
 import { ApplicationReviewCard, ApplicationDocument } from "@/components/ApplicationReviewCard";
 import { ApprovalPrompt } from "@/components/ApprovalPrompt";
-import { CaseStatusCard, SubmissionRecord } from "@/components/CaseStatusCard";
+import { CaseStatusCard, SubmissionRecord, CaseNotification } from "@/components/CaseStatusCard";
 import { CaseActivityTimeline, TimelineEvent } from "@/components/CaseActivityTimeline";
+import { DemoStatusController } from "@/components/DemoStatusController";
 import { 
   FileText, 
   Clock, 
@@ -30,7 +31,9 @@ import {
   ListOrdered,
   Activity,
   Send,
-  Lock
+  Lock,
+  Cloud,
+  Database
 } from "lucide-react";
 
 interface UploadResult {
@@ -41,16 +44,20 @@ interface UploadResult {
   extracted_text?: string;
   ai_response?: string;
   metadata?: {
+    document_id?: string;
+    gcs_uri?: string;
+    storage_path?: string;
     file_size_bytes?: number;
-    char_count?: number;
-    content_type?: string;
     saved_path?: string;
+    content_type?: string;
   };
 }
 
 interface CivicCaseFull {
   case_id: string;
+  title?: string;
   status: string;
+  deadline?: string;
   notice: NoticeStructuredData;
   research: ProcedureResearchData;
   workflow: WorkflowCase;
@@ -58,6 +65,7 @@ interface CivicCaseFull {
   submission?: SubmissionRecord;
   approval_record?: any;
   timeline: TimelineEvent[];
+  unread_notification?: CaseNotification | null;
   created_at: string;
   updated_at: string;
 }
@@ -71,21 +79,24 @@ export default function Home() {
   const [isGeneratingWorkflow, setIsGeneratingWorkflow] = useState(false);
   const [isPreparingApplication, setIsPreparingApplication] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [isMonitoring, setIsMonitoring] = useState(false);
   
   const [activeCase, setActiveCase] = useState<CivicCaseFull | null>(null);
-  const [activeTab, setActiveTab] = useState<"action_plan" | "application" | "approval" | "timeline" | "notice">("action_plan");
+  const [activeTab, setActiveTab] = useState<"action_plan" | "application" | "timeline" | "notice">("action_plan");
   const [showApprovalModal, setShowApprovalModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [detectedChangeCallout, setDetectedChangeCallout] = useState<any>(null);
 
   const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8000";
 
-  // Step 1: Upload Notice & Run Document Intelligence Agent
+  // Step 1: Upload Notice to Cloud Storage & Firestore
   const handleFileUpload = async (file: File) => {
     setCurrentFile(file);
     setIsUploading(true);
     setErrorMessage(null);
     setUploadResult(null);
     setActiveCase(null);
+    setDetectedChangeCallout(null);
 
     const formData = new FormData();
     formData.append("file", file);
@@ -113,7 +124,7 @@ export default function Home() {
     }
   };
 
-  // Step 2 & 3: Run Research Agent and Workflow Agent
+  // Step 2 & 3: Run Research Agent and Workflow Agent (Persisting in Firestore)
   const handleGenerateWorkflow = async (userDocuments: string[]) => {
     if (!uploadResult?.notice_data) return;
 
@@ -136,8 +147,7 @@ export default function Home() {
       const researchJson = await researchRes.json();
       const resData: ProcedureResearchData = researchJson.research_data;
 
-      // Brief animation pause
-      await new Promise((resolve) => setTimeout(resolve, 600));
+      await new Promise((resolve) => setTimeout(resolve, 500));
 
       // 2. Call Workflow Agent Endpoint (/workflow)
       const workflowRes = await fetch(`${API_URL}/workflow`, {
@@ -158,48 +168,11 @@ export default function Home() {
       const workflowJson = await workflowRes.json();
       const wfCase: WorkflowCase = workflowJson.workflow;
 
-      // 3. Retrieve or build the full persistent Case
+      // 3. Fetch persistent case from Firestore
       const caseRes = await fetch(`${API_URL}/cases/${wfCase.case_id}`);
       if (caseRes.ok) {
         const caseFull: CivicCaseFull = await caseRes.json();
         setActiveCase(caseFull);
-      } else {
-        // Fallback local synthesis
-        setActiveCase({
-          case_id: wfCase.case_id,
-          status: "draft",
-          notice: uploadResult.notice_data,
-          research: resData,
-          workflow: wfCase,
-          timeline: [
-            {
-              id: "evt_1",
-              agent_name: "Document Agent",
-              title: "Analyzed Civic Notice",
-              description: `Extracted notice: ${uploadResult.notice_data.notice_type}`,
-              status: "completed",
-              timestamp: new Date().toISOString()
-            },
-            {
-              id: "evt_2",
-              agent_name: "Research Agent",
-              title: "Identified Official Procedure",
-              description: `Procedure: ${resData.procedure_name}`,
-              status: "completed",
-              timestamp: new Date().toISOString()
-            },
-            {
-              id: "evt_3",
-              agent_name: "Workflow Agent",
-              title: "Created Personalized Action Plan",
-              description: `Sequenced ${wfCase.tasks.length} tasks`,
-              status: "completed",
-              timestamp: new Date().toISOString()
-            }
-          ],
-          created_at: new Date().toISOString(),
-          updated_at: new Date().toISOString()
-        });
       }
       setActiveTab("action_plan");
     } catch (err: any) {
@@ -212,7 +185,7 @@ export default function Home() {
     }
   };
 
-  // Step 4: Action Agent prepares the Application Draft
+  // Step 4: Action Agent prepares Application Draft
   const handlePrepareApplication = async () => {
     if (!activeCase) return;
 
@@ -268,7 +241,7 @@ export default function Home() {
     }
   };
 
-  // Step 6: Human Approves Action
+  // Step 6: Human Approves Action & Submits to Sandbox Gateway
   const handleApproveAndSubmit = async () => {
     if (!activeCase) return;
 
@@ -315,16 +288,96 @@ export default function Home() {
     }
   };
 
+  // Step 7: Trigger Autonomous Monitoring Check
+  const handleTriggerMonitoring = async () => {
+    if (!activeCase) return;
+
+    setIsMonitoring(true);
+    setErrorMessage(null);
+
+    try {
+      const res = await fetch(`${API_URL}/monitor/${activeCase.case_id}`, {
+        method: "POST"
+      });
+
+      if (!res.ok) {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.detail || `Monitoring check failed (${res.status})`);
+      }
+
+      const data = await res.json();
+      const updatedCase: CivicCaseFull = data.case;
+      setActiveCase(updatedCase);
+
+      if (data.analysis?.change_detected) {
+        setDetectedChangeCallout({
+          previousStatus: data.analysis.previous_status,
+          currentStatus: data.analysis.current_status,
+          summary: data.analysis.summary,
+          nextAction: data.analysis.next_action
+        });
+      }
+    } catch (err: any) {
+      console.error("Monitoring error:", err);
+      setErrorMessage(err.message || "Failed to run autonomous monitoring cycle.");
+    } finally {
+      setIsMonitoring(false);
+    }
+  };
+
+  // Step 8: Handle Demo Gateway Status Flip
+  const handleDemoStatusChanged = async (newStatus: string) => {
+    if (!activeCase) return;
+
+    // Refresh case details from Firestore
+    try {
+      const caseRes = await fetch(`${API_URL}/cases/${activeCase.case_id}`);
+      if (caseRes.ok) {
+        const caseFull: CivicCaseFull = await caseRes.json();
+        setActiveCase(caseFull);
+
+        if (caseFull.unread_notification) {
+          setDetectedChangeCallout({
+            previousStatus: "under_review",
+            currentStatus: newStatus,
+            summary: caseFull.unread_notification.message,
+            nextAction: caseFull.unread_notification.action_label || "Upload ownership proof"
+          });
+        }
+      }
+    } catch (err) {
+      console.error("Refresh case error:", err);
+    }
+  };
+
+  // Step 9: Acknowledge Notification
+  const handleAcknowledgeNotification = async () => {
+    if (!activeCase) return;
+    try {
+      const res = await fetch(`${API_URL}/cases/${activeCase.case_id}/acknowledge-notification`, {
+        method: "POST"
+      });
+      if (res.ok) {
+        const updated = await res.json();
+        setActiveCase(updated);
+      }
+    } catch (err) {
+      console.error("Acknowledge notification error:", err);
+    }
+  };
+
   const handleReset = () => {
     setCurrentFile(null);
     setIsUploading(false);
     setIsGeneratingWorkflow(false);
     setIsPreparingApplication(false);
     setIsSubmitting(false);
+    setIsMonitoring(false);
     setUploadResult(null);
     setActiveCase(null);
     setShowApprovalModal(false);
     setErrorMessage(null);
+    setDetectedChangeCallout(null);
     setActiveTab("action_plan");
   };
 
@@ -342,15 +395,15 @@ export default function Home() {
     <div className="max-w-4xl mx-auto px-4 py-8 sm:py-12 space-y-10">
       {/* Hero Header */}
       <div className="text-center space-y-3">
-        <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full text-xs font-semibold text-civic-800 bg-civic-50 border border-civic-200 shadow-2xs">
-          <Sparkles className="w-3.5 h-3.5 text-civic-600" />
-          Day 4: Action Agent + Human Approval Gate Active
+        <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-semibold text-civic-800 bg-civic-50 border border-civic-200 shadow-2xs">
+          <Database className="w-3.5 h-3.5 text-civic-600" />
+          <span>Day 5: Production + Autonomous Monitoring (Firestore & Cloud Storage)</span>
         </div>
         <h1 className="text-3xl sm:text-5xl font-extrabold tracking-tight text-slate-900">
           CivicOps
         </h1>
         <p className="text-lg sm:text-xl text-slate-600 font-normal max-w-2xl mx-auto">
-          Autonomous civic paperwork assistant: Multimodal analysis, grounded research, action preparation, and server-enforced human authorization.
+          Autonomous civic paperwork assistant: Multimodal analysis, grounded research, action preparation, persistent cloud storage, and continuous monitoring.
         </p>
       </div>
 
@@ -393,28 +446,45 @@ export default function Home() {
                     {activeCase.case_id}
                   </span>
                   <span className={`text-xs font-bold px-2.5 py-1 rounded-lg border ${
-                    activeCase.status === "submitted"
+                    activeCase.status === "additional_information_required"
+                      ? "bg-rose-50 text-rose-700 border-rose-200 animate-pulse"
+                      : activeCase.status === "submitted" || activeCase.status === "approved"
                       ? "bg-emerald-50 text-emerald-700 border-emerald-200"
-                      : activeCase.status === "approved"
-                      ? "bg-blue-50 text-blue-700 border-blue-200"
                       : "bg-amber-50 text-amber-700 border-amber-200"
                   }`}>
-                    {activeCase.status === "submitted" ? "Submitted (Demo)" : activeCase.status.toUpperCase()}
+                    {activeCase.status.replace(/_/g, " ").toUpperCase()}
                   </span>
                 </div>
               )}
             </div>
 
-            {/* Submission Receipt Banner (If Submitted) */}
-            {activeCase?.submission && (
+            {/* Case Status Dashboard Card (When Case Exists) */}
+            {activeCase && (
               <CaseStatusCard
                 submission={activeCase.submission}
                 caseId={activeCase.case_id}
+                status={activeCase.status}
+                title={activeCase.title || `${activeCase.notice.notice_type} Correction`}
+                deadline={activeCase.deadline || activeCase.notice.deadline}
+                notification={activeCase.unread_notification}
                 onViewTimeline={() => setActiveTab("timeline")}
+                onViewRequiredAction={() => setActiveTab("action_plan")}
+                onAcknowledgeNotification={handleAcknowledgeNotification}
               />
             )}
 
-            {/* Navigation Tabs (When case is active) */}
+            {/* Demo Status Gateway Controller (When submitted or active) */}
+            {activeCase && (
+              <DemoStatusController
+                caseId={activeCase.case_id}
+                currentStatus={activeCase.status}
+                onStatusChanged={handleDemoStatusChanged}
+                onTriggerMonitoring={handleTriggerMonitoring}
+                isLoading={isMonitoring}
+              />
+            )}
+
+            {/* Navigation Tabs */}
             {activeCase && (
               <div className="flex border-b border-slate-200 overflow-x-auto gap-1 pb-1">
                 <button
@@ -427,7 +497,7 @@ export default function Home() {
                   }`}
                 >
                   <ListOrdered className="w-3.5 h-3.5" />
-                  <span>Action Plan</span>
+                  <span>Action Plan ({activeCase.workflow.tasks.length} tasks)</span>
                 </button>
 
                 {activeCase.application && (
@@ -441,8 +511,7 @@ export default function Home() {
                     }`}
                   >
                     <FileText className="w-3.5 h-3.5" />
-                    <span>Application Review</span>
-                    <span className="h-2 w-2 rounded-full bg-amber-400" />
+                    <span>Application Package</span>
                   </button>
                 )}
 
@@ -456,7 +525,7 @@ export default function Home() {
                   }`}
                 >
                   <Activity className="w-3.5 h-3.5" />
-                  <span>Agent Timeline ({activeCase.timeline.length})</span>
+                  <span>Multi-Agent Timeline ({activeCase.timeline.length})</span>
                 </button>
 
                 <button
@@ -474,11 +543,12 @@ export default function Home() {
               </div>
             )}
 
-            {/* Live Agent Activity Animation (During research & workflow generation) */}
-            {isGeneratingWorkflow && (
+            {/* Live Agent Activity Animation */}
+            {(isGeneratingWorkflow || detectedChangeCallout) && (
               <AgentActivity
                 sourcesChecked={activeCase?.research?.source_information || []}
                 isComplete={!isGeneratingWorkflow && !!activeCase}
+                detectedChange={detectedChangeCallout}
               />
             )}
 
@@ -511,7 +581,7 @@ export default function Home() {
                   application={activeCase.application}
                   onSaveEdits={handleSaveApplicationEdits}
                   onProceedToApproval={() => setShowApprovalModal(true)}
-                  isSubmitted={activeCase.status === "submitted"}
+                  isSubmitted={activeCase.status === "submitted" || activeCase.status === "under_review" || activeCase.status === "additional_information_required"}
                 />
 
                 {showApprovalModal && (
@@ -646,21 +716,21 @@ export default function Home() {
       <div className="border-t border-slate-200/80 pt-8 space-y-4">
         <div className="flex items-center justify-between">
           <div>
-            <h3 className="text-base font-bold text-slate-900">CivicOps Autonomous Architecture</h3>
-            <p className="text-xs text-slate-500">Autonomous preparation with human-in-the-loop governance for consequential execution</p>
+            <h3 className="text-base font-bold text-slate-900">CivicOps Autonomous 5-Agent Architecture</h3>
+            <p className="text-xs text-slate-500">Autonomous preparation with human-in-the-loop governance and continuous monitoring</p>
           </div>
           <span className="text-xs font-semibold px-2.5 py-1 rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
-            Day 4 Architecture
+            Day 5 Production System
           </span>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-5 gap-3">
           <div className="p-3.5 bg-white rounded-2xl border border-slate-200/80 space-y-1 shadow-2xs">
             <div className="h-6 w-6 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center font-bold text-xs">
               1
             </div>
             <h4 className="text-xs font-bold text-slate-900">Document Agent</h4>
-            <p className="text-[11px] text-slate-500">Extracts structured citations, dates, & proof requirements.</p>
+            <p className="text-[11px] text-slate-500">Cloud Storage upload & structured notice metadata indexing.</p>
           </div>
 
           <div className="p-3.5 bg-white rounded-2xl border border-slate-200/80 space-y-1 shadow-2xs">
@@ -668,7 +738,7 @@ export default function Home() {
               2
             </div>
             <h4 className="text-xs font-bold text-slate-900">Research Agent</h4>
-            <p className="text-[11px] text-slate-500">Grounds procedures, statutory codes, & fees on .gov sources.</p>
+            <p className="text-[11px] text-slate-500">Grounds procedures, statutory codes, & fees on official portals.</p>
           </div>
 
           <div className="p-3.5 bg-white rounded-2xl border border-slate-200/80 space-y-1 shadow-2xs">
@@ -676,15 +746,23 @@ export default function Home() {
               3
             </div>
             <h4 className="text-xs font-bold text-slate-900">Workflow Agent</h4>
-            <p className="text-[11px] text-slate-500">Diffs citizen documents & sequences actionable milestones.</p>
+            <p className="text-[11px] text-slate-500">Diffs citizen documents & builds Firestore action plan.</p>
+          </div>
+
+          <div className="p-3.5 bg-white rounded-2xl border border-slate-200/80 space-y-1 shadow-2xs">
+            <div className="h-6 w-6 rounded-lg bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold text-xs">
+              4
+            </div>
+            <h4 className="text-xs font-bold text-slate-900">Action + Approval</h4>
+            <p className="text-[11px] text-slate-500">Drafts formal petition with server-enforced human authorization.</p>
           </div>
 
           <div className="p-3.5 bg-white rounded-2xl border border-slate-200/80 space-y-1 shadow-2xs">
             <div className="h-6 w-6 rounded-lg bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold text-xs">
-              4
+              5
             </div>
-            <h4 className="text-xs font-bold text-slate-900">Action + Approval</h4>
-            <p className="text-[11px] text-slate-500">Prepares petitions, gated behind strict human authorization.</p>
+            <h4 className="text-xs font-bold text-slate-900">Monitoring Agent</h4>
+            <p className="text-[11px] text-slate-500">Async Cloud Tasks polling, change detection, & adaptive tasks.</p>
           </div>
         </div>
       </div>
